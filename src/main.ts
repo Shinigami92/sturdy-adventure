@@ -62,15 +62,73 @@ function onMouseMove(event: MouseEvent): void {
 
 container.addEventListener('mousemove', onMouseMove, false);
 
+let mousePressed = false;
+
+function onMouseDown(): void {
+  mousePressed = true;
+}
+
+container.addEventListener('mousedown', onMouseDown, false);
+
+function onMouseUp(): void {
+  mousePressed = false;
+}
+
+container.addEventListener('mouseup', onMouseUp, false);
+
+const clock = new THREE.Clock();
+let delta = 0;
+
+const playerShootSpeed = 1;
+let playerShootTimer = 0;
+
+const bullets: THREE.Mesh[] = [];
+
 function animate(): void {
   requestAnimationFrame(animate);
 
+  delta = clock.getDelta();
+
+  // TODO @Shinigami92 2022-09-19: Split animation into render and update function
+
+  // TODO @Shinigami92 2022-09-19: Add player movement
+
+  if (playerShootTimer > 0) {
+    playerShootTimer -= delta;
+    if (playerShootTimer < 0) {
+      playerShootTimer = 0;
+    }
+  }
+
+  // TODO @Shinigami92 2022-09-19: Maybe the scene.children can be filtered in beforehand
   const intersections = raycast.intersectObjects(
     scene.children.filter((a) => a.id === ground.id),
   );
   if (intersections.length > 0) {
     const intersection = intersections[0];
     crosshair.position.copy(intersection.point);
+  }
+
+  if (mousePressed && playerShootTimer === 0) {
+    playerShootTimer = playerShootSpeed;
+
+    // TODO @Shinigami92 2022-09-19: Spawn the bullet via a helper
+    const bullet = new THREE.Mesh(
+      new THREE.SphereGeometry(0.2, 8, 8),
+      new THREE.MeshBasicMaterial({ color: 0x7f00ff }),
+    );
+    scene.add(bullet);
+
+    bullets.push(bullet);
+
+    bullet.position.copy(player.position);
+
+    bullet.lookAt(crosshair.position.x, crosshair.position.y, 0);
+  }
+
+  for (const bullet of bullets) {
+    bullet.translateZ(10 * delta);
+    // TODO @Shinigami92 2022-09-19: Let the bullet disappear after a while
   }
 
   renderer.render(scene, camera);
