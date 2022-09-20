@@ -76,6 +76,51 @@ function onMouseUp(): void {
 
 container.addEventListener('mouseup', onMouseUp, false);
 
+const keyPressed = {
+  w: false,
+  a: false,
+  s: false,
+  d: false,
+};
+
+function onKeyDown(event: KeyboardEvent): void {
+  switch (event.key) {
+    case 'w':
+      keyPressed.w = true;
+      break;
+    case 'a':
+      keyPressed.a = true;
+      break;
+    case 's':
+      keyPressed.s = true;
+      break;
+    case 'd':
+      keyPressed.d = true;
+      break;
+  }
+}
+
+window.addEventListener('keydown', onKeyDown, false);
+
+function onKeyUp(event: KeyboardEvent): void {
+  switch (event.key) {
+    case 'w':
+      keyPressed.w = false;
+      break;
+    case 'a':
+      keyPressed.a = false;
+      break;
+    case 's':
+      keyPressed.s = false;
+      break;
+    case 'd':
+      keyPressed.d = false;
+      break;
+  }
+}
+
+window.addEventListener('keyup', onKeyUp, false);
+
 const clock = new THREE.Clock();
 let delta = 0;
 
@@ -91,7 +136,24 @@ function animate(): void {
 
   // TODO @Shinigami92 2022-09-19: Split animation into render and update function
 
-  // TODO @Shinigami92 2022-09-19: Add player movement
+  if (keyPressed.w) {
+    player.position.y += 5 * delta;
+  }
+  if (keyPressed.a) {
+    player.position.x -= 5 * delta;
+  }
+  if (keyPressed.s) {
+    player.position.y -= 5 * delta;
+  }
+  if (keyPressed.d) {
+    player.position.x += 5 * delta;
+  }
+
+  camera.position.set(
+    player.position.x,
+    player.position.y,
+    player.position.z + 50,
+  );
 
   if (playerShootTimer > 0) {
     playerShootTimer -= delta;
