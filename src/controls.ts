@@ -12,12 +12,19 @@ export class PlayerControls extends THREE.EventDispatcher {
     right: 0,
   };
 
+  readonly mouseState = {
+    primary: 0,
+    secondary: 0,
+  };
+
   readonly moveVector = new THREE.Vector3(0, 0, 0);
 
   private readonly lastCameraPosition = new THREE.Vector3();
 
   private readonly _keydown = this.keydown.bind(this);
   private readonly _keyup = this.keyup.bind(this);
+  private readonly _mousedown = this.mousedown.bind(this);
+  private readonly _mouseup = this.mouseup.bind(this);
 
   constructor(
     private readonly camera: THREE.Camera,
@@ -26,6 +33,8 @@ export class PlayerControls extends THREE.EventDispatcher {
   ) {
     super();
 
+    this.domElement.addEventListener('mousedown', this._mousedown, false);
+    this.domElement.addEventListener('mouseup', this._mouseup, false);
     window.addEventListener('keydown', this._keydown, false);
     window.addEventListener('keyup', this._keyup, false);
 
@@ -76,6 +85,30 @@ export class PlayerControls extends THREE.EventDispatcher {
     this.updateMovementVector();
   }
 
+  private mousedown(event: MouseEvent): void {
+    switch (event.button) {
+      case 0:
+        this.mouseState.primary = 1;
+        break;
+
+      case 2:
+        this.mouseState.secondary = 1;
+        break;
+    }
+  }
+
+  private mouseup(event: MouseEvent): void {
+    switch (event.button) {
+      case 0:
+        this.mouseState.primary = 0;
+        break;
+
+      case 2:
+        this.mouseState.secondary = 0;
+        break;
+    }
+  }
+
   update(delta: number): void {
     const movementSpeed = 5;
     const moveMultiplier = delta * movementSpeed;
@@ -101,6 +134,8 @@ export class PlayerControls extends THREE.EventDispatcher {
   }
 
   dispose(): void {
+    this.domElement.removeEventListener('mousedown', this._mousedown, false);
+    this.domElement.removeEventListener('mouseup', this._mouseup, false);
     window.removeEventListener('keydown', this._keydown, false);
     window.removeEventListener('keyup', this._keyup, false);
   }

@@ -65,20 +65,6 @@ function onMouseMove(event: MouseEvent): void {
 
 container.addEventListener('mousemove', onMouseMove, false);
 
-let mousePressed = false;
-
-function onMouseDown(): void {
-  mousePressed = true;
-}
-
-container.addEventListener('mousedown', onMouseDown, false);
-
-function onMouseUp(): void {
-  mousePressed = false;
-}
-
-container.addEventListener('mouseup', onMouseUp, false);
-
 const clock = new THREE.Clock();
 let delta = 0;
 
@@ -109,7 +95,7 @@ function animate(): void {
     crosshair.position.copy(intersection.point);
   }
 
-  if (mousePressed && player.shootTimer === 0) {
+  if (controls.mouseState.primary > 0 && player.shootTimer === 0) {
     player.shootTimer = player.shootSpeed;
 
     // TODO @Shinigami92 2022-09-19: Spawn the bullet via a helper
