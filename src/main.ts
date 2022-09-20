@@ -41,7 +41,6 @@ scene.add(player);
 const controls = new PlayerControls(camera, renderer.domElement, player);
 
 const raycast = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
 
 const crosshair = new THREE.Mesh(
   new THREE.RingGeometry(0.4, 0.5, 12),
@@ -57,14 +56,6 @@ window.onresize = () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 };
 
-function onMouseMove(event: MouseEvent): void {
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-  raycast.setFromCamera(mouse.clone(), camera);
-}
-
-container.addEventListener('mousemove', onMouseMove, false);
-
 const clock = new THREE.Clock();
 let delta = 0;
 
@@ -78,6 +69,8 @@ function animate(): void {
   // TODO @Shinigami92 2022-09-19: Split animation into render and update function
 
   controls.update(delta);
+
+  raycast.setFromCamera(controls.mouseHudCoordinates.clone(), camera);
 
   if (player.shootTimer > 0) {
     player.shootTimer -= delta;
