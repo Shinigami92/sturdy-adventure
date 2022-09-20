@@ -2,6 +2,8 @@ import * as THREE from 'three';
 
 import type { Player } from '@/entities/player';
 
+const EPS = 0.000001;
+
 export class PlayerControls extends THREE.EventDispatcher {
   readonly moveState = {
     up: 0,
@@ -11,6 +13,8 @@ export class PlayerControls extends THREE.EventDispatcher {
   };
 
   readonly moveVector = new THREE.Vector3(0, 0, 0);
+
+  private readonly lastCameraPosition = new THREE.Vector3();
 
   private readonly _keydown = this.keydown.bind(this);
   private readonly _keyup = this.keyup.bind(this);
@@ -84,6 +88,11 @@ export class PlayerControls extends THREE.EventDispatcher {
       this.player.position.y,
       this.player.position.z + 50,
     );
+
+    if (this.lastCameraPosition.distanceToSquared(this.camera.position) > EPS) {
+      this.dispatchEvent({ type: 'change' });
+      this.lastCameraPosition.copy(this.camera.position);
+    }
   }
 
   private updateMovementVector(): void {
