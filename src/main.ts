@@ -86,10 +86,7 @@ function animate(): void {
     player.weapon.shoot(scene, player.position, crosshair.position);
   }
 
-  for (const bullet of BULLETS) {
-    bullet.translateZ(10 * delta);
-    // TODO @Shinigami92 2022-09-19: Let the bullet disappear after a while
-  }
+  BULLETS.forEach((bullet) => bullet.update(delta));
 
   renderer.render(scene, camera);
 }
