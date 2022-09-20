@@ -3,8 +3,9 @@ import '@/main.css';
 import * as THREE from 'three';
 
 import { PlayerControls } from '@/controls';
-import { Bullet } from '@/entities/bullet';
+import { BULLETS } from '@/entities/bullet';
 import { Player } from '@/entities/player';
+import { Revolver } from '@/entities/weapon';
 
 const container = document.getElementById('container');
 
@@ -34,7 +35,7 @@ const ground = new THREE.Mesh(
 );
 scene.add(ground);
 
-const player = new Player();
+const player = new Player({ weapon: new Revolver() });
 player.position.set(0, 0, 0);
 scene.add(player);
 
@@ -59,8 +60,6 @@ window.onresize = () => {
 const clock = new THREE.Clock();
 let delta = 0;
 
-const bullets: THREE.Mesh[] = [];
-
 function animate(): void {
   requestAnimationFrame(animate);
 
@@ -72,12 +71,7 @@ function animate(): void {
 
   raycast.setFromCamera(controls.mouseHudCoordinates.clone(), camera);
 
-  if (player.shootTimer > 0) {
-    player.shootTimer -= delta;
-    if (player.shootTimer < 0) {
-      player.shootTimer = 0;
-    }
-  }
+  player.weapon.update(delta);
 
   // TODO @Shinigami92 2022-09-19: Maybe the scene.children can be filtered in beforehand
   const intersections = raycast.intersectObjects(
@@ -88,21 +82,11 @@ function animate(): void {
     crosshair.position.copy(intersection.point);
   }
 
-  if (controls.mouseState.primary > 0 && player.shootTimer === 0) {
-    player.shootTimer = player.shootSpeed;
-
-    // TODO @Shinigami92 2022-09-19: Spawn the bullet via a helper
-    const bullet = new Bullet();
-    scene.add(bullet);
-
-    bullets.push(bullet);
-
-    bullet.position.copy(player.position);
-
-    bullet.lookAt(crosshair.position.x, crosshair.position.y, 0);
+  if (controls.mouseState.primary > 0) {
+    player.weapon.shoot(scene, player.position, crosshair.position);
   }
 
-  for (const bullet of bullets) {
+  for (const bullet of BULLETS) {
     bullet.translateZ(10 * delta);
     // TODO @Shinigami92 2022-09-19: Let the bullet disappear after a while
   }

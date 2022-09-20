@@ -5,21 +5,21 @@ import type { Player } from '@/entities/player';
 const EPS = 0.000001;
 
 export class PlayerControls extends THREE.EventDispatcher {
-  readonly moveState = {
+  public readonly moveState = {
     up: 0,
     down: 0,
     left: 0,
     right: 0,
   };
 
-  readonly mouseState = {
+  public readonly mouseState = {
     primary: 0,
     secondary: 0,
   };
 
-  readonly mouseHudCoordinates = new THREE.Vector2();
+  public readonly mouseHudCoordinates = new THREE.Vector2();
 
-  readonly moveVector = new THREE.Vector3(0, 0, 0);
+  public readonly moveVector = new THREE.Vector3(0, 0, 0);
 
   private readonly lastCameraPosition = new THREE.Vector3();
 
@@ -29,7 +29,7 @@ export class PlayerControls extends THREE.EventDispatcher {
   private readonly _mouseup = this.mouseup.bind(this);
   private readonly _mousemove = this.mousemove.bind(this);
 
-  constructor(
+  public constructor(
     private readonly camera: THREE.Camera,
     private readonly domElement: HTMLCanvasElement,
     private readonly player: Player,
@@ -118,7 +118,7 @@ export class PlayerControls extends THREE.EventDispatcher {
     this.mouseHudCoordinates.y = -(event.clientY / window.innerHeight) * 2 + 1;
   }
 
-  update(delta: number): void {
+  public update(delta: number): void {
     const moveMultiplier = delta * this.player.movementSpeed;
 
     this.player.position.x += this.moveVector.x * moveMultiplier;
@@ -141,7 +141,7 @@ export class PlayerControls extends THREE.EventDispatcher {
     this.moveVector.y = -this.moveState.down + this.moveState.up;
   }
 
-  dispose(): void {
+  public dispose(): void {
     this.domElement.removeEventListener('mousedown', this._mousedown, false);
     this.domElement.removeEventListener('mouseup', this._mouseup, false);
     this.domElement.removeEventListener('mousemove', this._mousemove, false);
