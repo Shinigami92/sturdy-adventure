@@ -1,6 +1,10 @@
-import './main.css';
+import '@/main.css';
 
 import * as THREE from 'three';
+
+import { PlayerControls } from '@/controls';
+import { Bullet } from '@/entities/bullet';
+import { Player } from '@/entities/player';
 
 const container = document.getElementById('container');
 
@@ -30,12 +34,11 @@ const ground = new THREE.Mesh(
 );
 scene.add(ground);
 
-const player = new THREE.Mesh(
-  new THREE.PlaneGeometry(1, 2),
-  new THREE.MeshBasicMaterial({ color: 0xff0000 }),
-);
+const player = new Player();
 player.position.set(0, 0, 0);
 scene.add(player);
+
+const controls = new PlayerControls(camera, renderer.domElement, player);
 
 const raycast = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
@@ -76,56 +79,8 @@ function onMouseUp(): void {
 
 container.addEventListener('mouseup', onMouseUp, false);
 
-const keyPressed = {
-  w: false,
-  a: false,
-  s: false,
-  d: false,
-};
-
-function onKeyDown(event: KeyboardEvent): void {
-  switch (event.key) {
-    case 'w':
-      keyPressed.w = true;
-      break;
-    case 'a':
-      keyPressed.a = true;
-      break;
-    case 's':
-      keyPressed.s = true;
-      break;
-    case 'd':
-      keyPressed.d = true;
-      break;
-  }
-}
-
-window.addEventListener('keydown', onKeyDown, false);
-
-function onKeyUp(event: KeyboardEvent): void {
-  switch (event.key) {
-    case 'w':
-      keyPressed.w = false;
-      break;
-    case 'a':
-      keyPressed.a = false;
-      break;
-    case 's':
-      keyPressed.s = false;
-      break;
-    case 'd':
-      keyPressed.d = false;
-      break;
-  }
-}
-
-window.addEventListener('keyup', onKeyUp, false);
-
 const clock = new THREE.Clock();
 let delta = 0;
-
-const playerShootSpeed = 1;
-let playerShootTimer = 0;
 
 const bullets: THREE.Mesh[] = [];
 
@@ -136,29 +91,12 @@ function animate(): void {
 
   // TODO @Shinigami92 2022-09-19: Split animation into render and update function
 
-  if (keyPressed.w) {
-    player.position.y += 5 * delta;
-  }
-  if (keyPressed.a) {
-    player.position.x -= 5 * delta;
-  }
-  if (keyPressed.s) {
-    player.position.y -= 5 * delta;
-  }
-  if (keyPressed.d) {
-    player.position.x += 5 * delta;
-  }
+  controls.update(delta);
 
-  camera.position.set(
-    player.position.x,
-    player.position.y,
-    player.position.z + 50,
-  );
-
-  if (playerShootTimer > 0) {
-    playerShootTimer -= delta;
-    if (playerShootTimer < 0) {
-      playerShootTimer = 0;
+  if (player.shootTimer > 0) {
+    player.shootTimer -= delta;
+    if (player.shootTimer < 0) {
+      player.shootTimer = 0;
     }
   }
 
@@ -171,14 +109,11 @@ function animate(): void {
     crosshair.position.copy(intersection.point);
   }
 
-  if (mousePressed && playerShootTimer === 0) {
-    playerShootTimer = playerShootSpeed;
+  if (mousePressed && player.shootTimer === 0) {
+    player.shootTimer = player.shootSpeed;
 
     // TODO @Shinigami92 2022-09-19: Spawn the bullet via a helper
-    const bullet = new THREE.Mesh(
-      new THREE.SphereGeometry(0.2, 8, 8),
-      new THREE.MeshBasicMaterial({ color: 0x7f00ff }),
-    );
+    const bullet = new Bullet();
     scene.add(bullet);
 
     bullets.push(bullet);
