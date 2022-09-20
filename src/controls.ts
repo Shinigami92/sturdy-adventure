@@ -119,8 +119,7 @@ export class PlayerControls extends THREE.EventDispatcher {
   }
 
   update(delta: number): void {
-    const movementSpeed = 5;
-    const moveMultiplier = delta * movementSpeed;
+    const moveMultiplier = delta * this.player.movementSpeed;
 
     this.player.position.x += this.moveVector.x * moveMultiplier;
     this.player.position.y += this.moveVector.y * moveMultiplier;
