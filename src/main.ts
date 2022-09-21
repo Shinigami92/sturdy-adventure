@@ -4,6 +4,8 @@ import * as THREE from 'three';
 
 import { PlayerControls } from '@/controls';
 import { isBullet } from '@/entities/bullet';
+import type { Disposable } from '@/entities/disposable';
+import { isDisposable } from '@/entities/disposable';
 import { Enemy, isEnemy } from '@/entities/enemy';
 import { Player } from '@/entities/player';
 import { isUpdatable } from '@/entities/updatable';
@@ -125,6 +127,7 @@ function animate(): void {
   const enemies = scene.children.filter(isEnemy);
 
   // TODO @Shinigami92 2022-09-21: Maybe go back to normal loops so all bullets and enemies can be updated/moved before collisions are detected
+  const disposeObjects: Disposable[] = [];
   scene.traverse((object) => {
     if (isUpdatable(object)) {
       if (isEnemy(object)) {
@@ -144,7 +147,13 @@ function animate(): void {
         }
       }
     }
+
+    if (isDisposable(object) && object.markForDisposal) {
+      disposeObjects.push(object);
+    }
   });
+
+  disposeObjects.forEach((object) => object.dispose());
 
   renderer.render(scene, camera);
 }

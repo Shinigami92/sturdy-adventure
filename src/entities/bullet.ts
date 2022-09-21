@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 
+import type { Disposable } from '@/entities/disposable';
 import type { Updatable } from '@/entities/updatable';
 
 export interface BulletOptions {
@@ -19,9 +20,12 @@ export interface BulletOptions {
   damage?: number;
 }
 
-export class Bullet extends THREE.Mesh implements Updatable {
+export class Bullet extends THREE.Mesh implements Updatable, Disposable {
   public readonly isUpdatable = true;
+  public readonly isDisposable = true;
   public readonly isBullet = true;
+
+  public markForDisposal = false;
 
   public speed: number;
 
@@ -46,11 +50,23 @@ export class Bullet extends THREE.Mesh implements Updatable {
   public update(delta: number): void {
     this.lifetime -= delta;
     if (this.lifetime <= 0) {
-      this.parent?.remove(this);
+      this.markForDisposal = true;
       return;
     }
 
     this.translateZ(delta * this.speed);
+  }
+
+  public dispose(): void {
+    this.geometry.dispose();
+
+    if (Array.isArray(this.material)) {
+      this.material.forEach((material) => material.dispose());
+    } else {
+      this.material.dispose();
+    }
+
+    this.parent?.remove(this);
   }
 }
 

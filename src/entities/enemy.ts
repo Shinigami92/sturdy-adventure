@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 
+import type { Disposable } from '@/entities/disposable';
 import type { Updatable } from '@/entities/updatable';
 
 export interface EnemyOptions {
@@ -14,9 +15,12 @@ export interface EnemyOptions {
   movementSpeed?: number;
 }
 
-export class Enemy extends THREE.Mesh implements Updatable {
+export class Enemy extends THREE.Mesh implements Updatable, Disposable {
   public readonly isUpdatable = true;
+  public readonly isDisposable = true;
   public readonly isEnemy = true;
+
+  public markForDisposal = false;
 
   public target = new THREE.Vector3();
 
@@ -39,7 +43,7 @@ export class Enemy extends THREE.Mesh implements Updatable {
 
   public update(delta: number): void {
     if (this.health <= 0) {
-      this.parent?.remove(this);
+      this.markForDisposal = true;
       return;
     }
 
@@ -49,6 +53,18 @@ export class Enemy extends THREE.Mesh implements Updatable {
     const moveDistance = delta * this.movementSpeed;
     this.translateX((moveDistance * direction.x) / distance);
     this.translateY((moveDistance * direction.y) / distance);
+  }
+
+  public dispose(): void {
+    this.geometry.dispose();
+
+    if (Array.isArray(this.material)) {
+      this.material.forEach((material) => material.dispose());
+    } else {
+      this.material.dispose();
+    }
+
+    this.parent?.remove(this);
   }
 }
 
