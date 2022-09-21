@@ -3,6 +3,8 @@ import '@/main.css';
 import * as THREE from 'three';
 
 import { PlayerControls } from '@/controls';
+import { isBullet } from '@/entities/bullet';
+import { Enemy, isEnemy } from '@/entities/enemy';
 import { Player } from '@/entities/player';
 import { isUpdatable } from '@/entities/updatable';
 import { Revolver } from '@/entities/weapon';
@@ -29,9 +31,11 @@ const camera = new THREE.PerspectiveCamera(
 );
 camera.position.set(0, 0, 50);
 
+const groundColor = new THREE.Color(0x576d46);
+groundColor.convertSRGBToLinear();
 const ground = new THREE.Mesh(
   new THREE.PlaneGeometry(100, 100),
-  new THREE.MeshBasicMaterial({ color: 0xbfe3dd }),
+  new THREE.MeshBasicMaterial({ color: groundColor }),
 );
 scene.add(ground);
 
@@ -43,9 +47,11 @@ const controls = new PlayerControls(camera, renderer.domElement, player);
 
 const raycast = new THREE.Raycaster();
 
+const crosshairColor = new THREE.Color(0x0000ff);
+crosshairColor.convertSRGBToLinear();
 const crosshair = new THREE.Mesh(
   new THREE.RingGeometry(0.4, 0.5, 12),
-  new THREE.MeshBasicMaterial({ color: 0x0000ff }),
+  new THREE.MeshBasicMaterial({ color: crosshairColor }),
 );
 crosshair.position.set(0, 0, 0);
 scene.add(crosshair);
@@ -60,6 +66,9 @@ window.onresize = () => {
 const clock = new THREE.Clock();
 let delta = 0;
 
+// TODO @Shinigami92 2022-09-21: Maybe build an EnemySpawner
+let enemySpawnTimer = 3;
+
 function animate(): void {
   requestAnimationFrame(animate);
 
@@ -67,8 +76,14 @@ function animate(): void {
 
   // TODO @Shinigami92 2022-09-19: Split animation into render and update function
 
+  // #######################
+  // # Update the controls #
+  // #######################
   controls.update(delta);
 
+  // ##########################
+  // # Test for intersections #
+  // ##########################
   raycast.setFromCamera(controls.mouseHudCoordinates.clone(), camera);
 
   // TODO @Shinigami92 2022-09-19: Maybe the scene.children can be filtered in beforehand
@@ -80,13 +95,59 @@ function animate(): void {
     crosshair.position.copy(intersection.point);
   }
 
+  // ###################
+  // # Perform actions #
+  // ###################
+  if (enemySpawnTimer > 0) {
+    enemySpawnTimer -= delta;
+    if (enemySpawnTimer < 0) {
+      enemySpawnTimer = 0;
+    }
+  }
+
+  if (enemySpawnTimer === 0) {
+    enemySpawnTimer = 3;
+
+    const enemy = new Enemy();
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 20;
+    enemy.position.set(
+      player.position.x + Math.sin(angle) * distance,
+      player.position.y + Math.cos(angle) * distance,
+      0,
+    );
+    scene.add(enemy);
+  }
+
   if (controls.mouseState.primary > 0) {
     player.weapon.shoot(scene, player.position, crosshair.position);
   }
 
+  // ################################
+  // # Update all updatable objects #
+  // ################################
+  // TODO @Shinigami92 2022-09-21: Filtering the enemies in each render cycle is a performance issue
+  const enemies = scene.children.filter(isEnemy);
+
+  // TODO @Shinigami92 2022-09-21: Maybe go back to normal loops so all bullets and enemies can be updated/moved before collisions are detected
   scene.traverse((object) => {
     if (isUpdatable(object)) {
+      if (isEnemy(object)) {
+        object.target.copy(player.position);
+      }
+
       object.update(delta);
+
+      if (isBullet(object)) {
+        for (const enemy of enemies) {
+          // TODO @Shinigami92 2022-09-21: Enhance collision detection
+          if (enemy.position.distanceTo(object.position) < 0.5) {
+            enemy.health -= object.damage;
+            // TODO @Shinigami92 2022-09-21: Maybe the bullet has a piercing effect
+            break;
+          }
+        }
+      }
     }
   });
 

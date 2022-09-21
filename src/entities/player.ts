@@ -10,9 +10,11 @@ export class Player extends THREE.Mesh {
   public weapon: Weapon;
 
   public constructor({ weapon }: { weapon: Weapon }) {
+    const color = new THREE.Color(0xff0000);
+    color.convertSRGBToLinear();
     super(
       new THREE.PlaneGeometry(1, 2),
-      new THREE.MeshBasicMaterial({ color: 0xff0000 }),
+      new THREE.MeshBasicMaterial({ color }),
     );
 
     this.weapon = weapon;

@@ -8,11 +8,14 @@ export class Bullet extends THREE.Mesh implements Updatable {
 
   public speed = 15;
   public livetime = 1;
+  public damage = 1;
 
   public constructor() {
+    const color = new THREE.Color(0xff6ec7);
+    color.convertSRGBToLinear();
     super(
       new THREE.SphereGeometry(0.2, 8, 8),
-      new THREE.MeshBasicMaterial({ color: 0x7f00ff }),
+      new THREE.MeshBasicMaterial({ color }),
     );
   }
 
