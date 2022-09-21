@@ -98,12 +98,7 @@ function animate(): void {
   // ###################
   // # Perform actions #
   // ###################
-  if (enemySpawnTimer > 0) {
-    enemySpawnTimer -= delta;
-    if (enemySpawnTimer < 0) {
-      enemySpawnTimer = 0;
-    }
-  }
+  enemySpawnTimer = Math.max(0, enemySpawnTimer - delta);
 
   if (enemySpawnTimer === 0) {
     enemySpawnTimer = 3;

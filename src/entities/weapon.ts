@@ -32,12 +32,7 @@ export abstract class Weapon extends THREE.Mesh implements Updatable {
   ): void;
 
   public update(delta: number): void {
-    if (this.shootTimer > 0) {
-      this.shootTimer -= delta;
-      if (this.shootTimer < 0) {
-        this.shootTimer = 0;
-      }
-    }
+    this.shootTimer = Math.max(0, this.shootTimer - delta);
   }
 }
 
