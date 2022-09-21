@@ -2,16 +2,29 @@ import * as THREE from 'three';
 
 import type { Updatable } from '@/entities/updatable';
 
+export interface EnemyOptions {
+  /**
+   * @default 1
+   */
+  health?: number;
+
+  /**
+   * @default 4
+   */
+  movementSpeed?: number;
+}
+
 export class Enemy extends THREE.Mesh implements Updatable {
   public readonly isUpdatable = true;
   public readonly isEnemy = true;
 
-  public health: number;
-
-  public movementSpeed = 4;
   public target = new THREE.Vector3();
 
-  public constructor({ health = 1 }: { health: number } = { health: 1 }) {
+  public health: number;
+
+  public movementSpeed: number;
+
+  public constructor(options: EnemyOptions = {}) {
     const color = new THREE.Color(0xffff00);
     color.convertSRGBToLinear();
     super(
@@ -19,7 +32,9 @@ export class Enemy extends THREE.Mesh implements Updatable {
       new THREE.MeshBasicMaterial({ color }),
     );
 
+    const { health = 1, movementSpeed = 4 } = options;
     this.health = health;
+    this.movementSpeed = movementSpeed;
   }
 
   public update(delta: number): void {

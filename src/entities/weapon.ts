@@ -3,14 +3,26 @@ import * as THREE from 'three';
 import { Bullet } from '@/entities/bullet';
 import type { Updatable } from '@/entities/updatable';
 
+export interface WeaponOptions {
+  /**
+   * @default 1
+   */
+  shootSpeed?: number;
+}
+
 export abstract class Weapon extends THREE.Mesh implements Updatable {
   public readonly isUpdatable = true;
   public readonly isWeapon = true;
 
   public shootTimer = 0;
 
-  public constructor(public shootSpeed = 1) {
+  public shootSpeed: number;
+
+  public constructor(options: WeaponOptions = {}) {
     super();
+
+    const { shootSpeed = 1 } = options;
+    this.shootSpeed = shootSpeed;
   }
 
   public abstract shoot(
@@ -37,7 +49,7 @@ export class Revolver extends Weapon {
   public readonly isRevolver = true;
 
   public constructor() {
-    super(1);
+    super({ shootSpeed: 1 });
   }
 
   public shoot(
