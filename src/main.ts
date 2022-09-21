@@ -71,8 +71,6 @@ function animate(): void {
 
   raycast.setFromCamera(controls.mouseHudCoordinates.clone(), camera);
 
-  player.weapon.update(delta);
-
   // TODO @Shinigami92 2022-09-19: Maybe the scene.children can be filtered in beforehand
   const intersections = raycast.intersectObjects(
     scene.children.filter((a) => a.id === ground.id),

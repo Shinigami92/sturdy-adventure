@@ -1,9 +1,17 @@
-import { Bullet } from '@/entities/bullet';
+import * as THREE from 'three';
 
-export abstract class Weapon {
+import { Bullet } from '@/entities/bullet';
+import type { Updatable } from '@/entities/updatable';
+
+export abstract class Weapon extends THREE.Mesh implements Updatable {
+  public readonly isUpdatable = true;
+  public readonly isWeapon = true;
+
   public shootTimer = 0;
 
-  public constructor(public shootSpeed = 1) {}
+  public constructor(public shootSpeed = 1) {
+    super();
+  }
 
   public abstract shoot(
     scene: THREE.Scene,
@@ -21,7 +29,13 @@ export abstract class Weapon {
   }
 }
 
+export function isWeapon(value: any): value is Weapon {
+  return value?.isWeapon === true;
+}
+
 export class Revolver extends Weapon {
+  public readonly isRevolver = true;
+
   public constructor() {
     super(1);
   }
@@ -43,4 +57,8 @@ export class Revolver extends Weapon {
       bullet.lookAt(shootAt.x, shootAt.y, 0);
     }
   }
+}
+
+export function isRevolver(value: any): value is Revolver {
+  return value?.isRevolver === true;
 }

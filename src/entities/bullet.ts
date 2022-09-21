@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import type { Updatable } from '@/entities/updatable';
 
 export class Bullet extends THREE.Mesh implements Updatable {
+  public readonly isUpdatable = true;
   public readonly isBullet = true;
 
   public speed = 15;
