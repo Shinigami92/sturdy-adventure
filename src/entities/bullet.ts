@@ -7,7 +7,7 @@ export class Bullet extends THREE.Mesh implements Updatable {
   public readonly isBullet = true;
 
   public speed = 15;
-  public livetime = 1;
+  public lifetime = 1;
   public damage = 1;
 
   public constructor() {
@@ -20,8 +20,8 @@ export class Bullet extends THREE.Mesh implements Updatable {
   }
 
   public update(delta: number): void {
-    this.livetime -= delta;
-    if (this.livetime <= 0) {
+    this.lifetime -= delta;
+    if (this.lifetime <= 0) {
       this.parent?.remove(this);
       return;
     }
