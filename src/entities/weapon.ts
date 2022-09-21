@@ -1,4 +1,4 @@
-import { Bullet, BULLETS } from '@/entities/bullet';
+import { Bullet } from '@/entities/bullet';
 
 export abstract class Weapon {
   public shootTimer = 0;
@@ -37,8 +37,6 @@ export class Revolver extends Weapon {
       // TODO @Shinigami92 2022-09-19: Spawn the bullet via a helper
       const bullet = new Bullet();
       scene.add(bullet);
-
-      BULLETS.push(bullet);
 
       bullet.position.copy(shootFrom);
 

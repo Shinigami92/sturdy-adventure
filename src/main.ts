@@ -3,8 +3,8 @@ import '@/main.css';
 import * as THREE from 'three';
 
 import { PlayerControls } from '@/controls';
-import { BULLETS } from '@/entities/bullet';
 import { Player } from '@/entities/player';
+import { isUpdatable } from '@/entities/updatable';
 import { Revolver } from '@/entities/weapon';
 
 const container = document.getElementById('container');
@@ -86,7 +86,11 @@ function animate(): void {
     player.weapon.shoot(scene, player.position, crosshair.position);
   }
 
-  BULLETS.forEach((bullet) => bullet.update(delta));
+  scene.traverse((object) => {
+    if (isUpdatable(object)) {
+      object.update(delta);
+    }
+  });
 
   renderer.render(scene, camera);
 }

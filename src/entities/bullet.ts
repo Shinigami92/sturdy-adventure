@@ -1,8 +1,10 @@
 import * as THREE from 'three';
 
-export const BULLETS: Bullet[] = [];
+import type { Updatable } from '@/entities/updatable';
 
-export class Bullet extends THREE.Mesh {
+export class Bullet extends THREE.Mesh implements Updatable {
+  public readonly isBullet = true;
+
   public speed = 15;
   public livetime = 1;
 
@@ -17,10 +19,13 @@ export class Bullet extends THREE.Mesh {
     this.livetime -= delta;
     if (this.livetime <= 0) {
       this.parent?.remove(this);
-      BULLETS.splice(BULLETS.indexOf(this), 1);
       return;
     }
 
     this.translateZ(delta * this.speed);
   }
+}
+
+export function isBullet(value: any): value is Bullet {
+  return value?.isBullet === true;
 }
