@@ -1,6 +1,7 @@
 import '@/main.css';
 
 import * as THREE from 'three';
+import Stats from 'three/examples/jsm/libs/stats.module';
 
 import { isBullet } from '@/entities/bullets/bullet';
 import { Enemy, isEnemy } from '@/entities/enemies/enemy';
@@ -22,6 +23,12 @@ renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.outputEncoding = THREE.sRGBEncoding;
 container.appendChild(renderer.domElement);
+
+let stats: Stats | undefined;
+if (import.meta.env.DEV) {
+  stats = Stats();
+  document.body.appendChild(stats.dom);
+}
 
 const scene = new THREE.Scene();
 
@@ -146,6 +153,8 @@ function animate(): void {
   disposeObjects.forEach((object) => object.dispose());
 
   renderer.render(scene, camera);
+
+  stats?.update();
 }
 
 animate();
