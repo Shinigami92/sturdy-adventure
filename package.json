@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "clean": "rimraf dist pnpm-lock.yaml node_modules",
+    "check:ts": "tsc --noEmit",
     "build": "vite build",
     "preview": "vite preview",
     "start": "vite",
