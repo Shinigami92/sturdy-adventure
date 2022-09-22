@@ -29,25 +29,19 @@ const camera = new THREE.PerspectiveCamera(
   40,
   window.innerWidth / window.innerHeight,
   1,
-  100,
+  50,
 );
-camera.position.set(0, 0, 50);
+camera.position.set(0, 0, camera.far);
 
-const groundColor = new THREE.Color(0x576d46);
-groundColor.convertSRGBToLinear();
-const ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(100, 100),
-  new THREE.MeshBasicMaterial({ color: groundColor }),
-);
-scene.add(ground);
+const backgroundColor = new THREE.Color(0x576d46);
+backgroundColor.convertSRGBToLinear();
+scene.background = backgroundColor;
 
 const player = new Player({ weapon: new Revolver() });
 player.position.set(0, 0, 0);
 scene.add(player);
 
 const controls = new PlayerControls(camera, renderer.domElement, player);
-
-const raycast = new THREE.Raycaster();
 
 const crosshairColor = new THREE.Color(0x0000ff);
 crosshairColor.convertSRGBToLinear();
@@ -83,16 +77,15 @@ function animate(): void {
   // #######################
   controls.update(delta);
 
-  // ##########################
-  // # Test for intersections #
-  // ##########################
-  raycast.setFromCamera(controls.mouseHudCoordinates.clone(), camera);
+  const newCrosshairPosition = new THREE.Vector3(
+    controls.mouseHudCoordinates.x,
+    controls.mouseHudCoordinates.y,
+    1,
+  );
+  newCrosshairPosition.unproject(camera);
+  newCrosshairPosition.setZ(0);
 
-  const intersections = raycast.intersectObject(ground);
-  if (intersections.length > 0) {
-    const intersection = intersections[0];
-    crosshair.position.copy(intersection.point);
-  }
+  crosshair.position.copy(newCrosshairPosition);
 
   // ###################
   // # Perform actions #
