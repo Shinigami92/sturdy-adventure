@@ -7,7 +7,7 @@ export class Revolver extends Weapon {
   public readonly isRevolver = true;
 
   public constructor() {
-    super({ shootSpeed: 1 });
+    super({ shootSpeed: 1, ammunition: 6, reloadSpeed: 2 });
   }
 
   public shoot(
@@ -15,7 +15,7 @@ export class Revolver extends Weapon {
     shootFrom: THREE.Vector3,
     shootAt: THREE.Vector3,
   ): void {
-    if (this.shootTimer === 0) {
+    if (this.reloadTimer === 0 && this.shootTimer === 0) {
       this.shootTimer = this.shootSpeed;
 
       // TODO @Shinigami92 2022-09-19: Spawn the bullet via a helper
@@ -25,6 +25,12 @@ export class Revolver extends Weapon {
       bullet.position.copy(shootFrom);
 
       bullet.lookAt(shootAt.x, shootAt.y, 0);
+
+      this.ammunition -= 1;
+
+      if (this.ammunition === 0) {
+        this.reloadTimer = this.reloadSpeed;
+      }
     }
   }
 }

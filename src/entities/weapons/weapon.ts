@@ -4,9 +4,19 @@ import type { Updatable } from '@/utilities/updatable';
 
 export interface WeaponOptions {
   /**
-   * @default 1
+   *
    */
-  shootSpeed?: number;
+  shootSpeed: number;
+
+  /**
+   *
+   */
+  ammunition: number;
+
+  /**
+   *
+   */
+  reloadSpeed: number;
 }
 
 export abstract class Weapon extends THREE.Mesh implements Updatable {
@@ -17,11 +27,22 @@ export abstract class Weapon extends THREE.Mesh implements Updatable {
 
   public shootSpeed: number;
 
-  public constructor(options: WeaponOptions = {}) {
+  public maxAmmunition: number;
+
+  public ammunition: number;
+
+  public reloadTimer = 0;
+
+  public reloadSpeed: number;
+
+  public constructor(options: WeaponOptions) {
     super();
 
-    const { shootSpeed = 1 } = options;
+    const { shootSpeed, ammunition, reloadSpeed } = options;
     this.shootSpeed = shootSpeed;
+    this.maxAmmunition = ammunition;
+    this.ammunition = ammunition;
+    this.reloadSpeed = reloadSpeed;
   }
 
   public abstract shoot(
@@ -32,6 +53,11 @@ export abstract class Weapon extends THREE.Mesh implements Updatable {
 
   public update(delta: number): void {
     this.shootTimer = Math.max(0, this.shootTimer - delta);
+    this.reloadTimer = Math.max(0, this.reloadTimer - delta);
+
+    if (this.reloadTimer === 0 && this.ammunition === 0) {
+      this.ammunition = this.maxAmmunition;
+    }
   }
 }
 
