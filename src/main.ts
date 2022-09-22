@@ -88,10 +88,7 @@ function animate(): void {
   // ##########################
   raycast.setFromCamera(controls.mouseHudCoordinates.clone(), camera);
 
-  // TODO @Shinigami92 2022-09-19: Maybe the scene.children can be filtered in beforehand
-  const intersections = raycast.intersectObjects(
-    scene.children.filter((a) => a.id === ground.id),
-  );
+  const intersections = raycast.intersectObject(ground);
   if (intersections.length > 0) {
     const intersection = intersections[0];
     crosshair.position.copy(intersection.point);
