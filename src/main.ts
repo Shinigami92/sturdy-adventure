@@ -2,14 +2,14 @@ import '@/main.css';
 
 import * as THREE from 'three';
 
-import { PlayerControls } from '@/controls';
-import { isBullet } from '@/entities/bullet';
-import type { Disposable } from '@/entities/disposable';
-import { isDisposable } from '@/entities/disposable';
-import { Enemy, isEnemy } from '@/entities/enemy';
+import { isBullet } from '@/entities/bullets/bullet';
+import { Enemy, isEnemy } from '@/entities/enemies/enemy';
 import { Player } from '@/entities/player';
-import { isUpdatable } from '@/entities/updatable';
-import { Revolver } from '@/entities/weapon';
+import { Revolver } from '@/entities/weapons/revolver';
+import { PlayerControls } from '@/utilities/controls';
+import type { Disposable } from '@/utilities/disposable';
+import { isDisposable } from '@/utilities/disposable';
+import { isUpdatable } from '@/utilities/updatable';
 
 const container = document.getElementById('container');
 

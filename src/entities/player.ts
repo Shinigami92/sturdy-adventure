@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import type { Weapon } from '@/entities/weapon';
+import type { Weapon } from '@/entities/weapons/weapon';
 
 export interface PlayerOptions {
   /**

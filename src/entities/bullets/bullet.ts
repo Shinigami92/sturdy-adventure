@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
-import type { Disposable } from '@/entities/disposable';
-import type { Updatable } from '@/entities/updatable';
+import type { Disposable } from '@/utilities/disposable';
+import type { Updatable } from '@/utilities/updatable';
 
 export interface BulletOptions {
   /**
