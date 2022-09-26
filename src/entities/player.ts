@@ -12,6 +12,11 @@ export interface PlayerOptions {
    *
    */
   weapon: Weapon;
+
+  /**
+   * @default 3
+   */
+  maxHealth?: number;
 }
 
 export class Player extends THREE.Mesh {
@@ -21,6 +26,10 @@ export class Player extends THREE.Mesh {
 
   public weapon: Weapon;
 
+  public maxHealth: number;
+
+  public health: number;
+
   public constructor(options: PlayerOptions) {
     const color = new THREE.Color(0xff0000);
     color.convertSRGBToLinear();
@@ -29,8 +38,11 @@ export class Player extends THREE.Mesh {
       new THREE.MeshBasicMaterial({ color }),
     );
 
-    const { movementSpeed = 5, weapon } = options;
+    const { movementSpeed = 5, weapon, maxHealth = 3 } = options;
     this.movementSpeed = movementSpeed;
+
+    this.maxHealth = maxHealth;
+    this.health = maxHealth;
 
     this.weapon = weapon;
     this.add(this.weapon);

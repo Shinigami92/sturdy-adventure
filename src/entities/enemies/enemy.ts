@@ -13,6 +13,11 @@ export interface EnemyOptions {
    * @default 4
    */
   movementSpeed?: number;
+
+  /**
+   * @default 1
+   */
+  damage?: number;
 }
 
 export class Enemy extends THREE.Mesh implements Updatable, Disposable {
@@ -28,6 +33,8 @@ export class Enemy extends THREE.Mesh implements Updatable, Disposable {
 
   public movementSpeed: number;
 
+  public damage: number;
+
   public constructor(options: EnemyOptions = {}) {
     const color = new THREE.Color(0xffff00);
     color.convertSRGBToLinear();
@@ -36,9 +43,10 @@ export class Enemy extends THREE.Mesh implements Updatable, Disposable {
       new THREE.MeshBasicMaterial({ color }),
     );
 
-    const { health = 1, movementSpeed = 4 } = options;
+    const { health = 1, movementSpeed = 4, damage = 1 } = options;
     this.health = health;
     this.movementSpeed = movementSpeed;
+    this.damage = damage;
   }
 
   public update(delta: number): void {

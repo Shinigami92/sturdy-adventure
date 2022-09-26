@@ -19,7 +19,12 @@ export class Revolver extends Weapon {
       this.shootTimer = this.shootSpeed;
 
       // TODO @Shinigami92 2022-09-19: Spawn the bullet via a helper
-      const bullet = new Bullet();
+      const bullet = new Bullet({
+        speed: 15,
+        lifetime: 1,
+        damage: 1,
+        maxHits: 1,
+      });
       scene.add(bullet);
 
       bullet.position.copy(shootFrom);

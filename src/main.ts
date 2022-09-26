@@ -79,8 +79,26 @@ const clock = new THREE.Clock();
 let delta = 0;
 
 // TODO @Shinigami92 2022-09-21: Maybe build an EnemySpawner
-let enemySpawnTimer = 3;
+let enemySpawnTimer = 1.2;
 let enemyMovementSpeedMultiplier = 1;
+
+function resetGame(): void {
+  scene.traverse((object) => {
+    if (isDisposable(object)) {
+      object.markForDisposal = true;
+    }
+  });
+
+  player.position.set(0, 0, 0);
+  player.health = player.maxHealth;
+  player.weapon = new Revolver();
+  player.weapon.ammunition = player.weapon.maxAmmunition;
+  player.weapon.reloadTimer = 0;
+  player.weapon.shootTimer = 0;
+
+  enemySpawnTimer = 1.2;
+  enemyMovementSpeedMultiplier = 1;
+}
 
 function animate(): void {
   requestAnimationFrame(animate);
@@ -156,7 +174,7 @@ function animate(): void {
         }
 
         if (collision(object, player)) {
-          // player.health -= object.damage;
+          player.health -= object.damage;
 
           // push all enemies away from the player
           for (const enemy of enemies) {
@@ -192,6 +210,10 @@ function animate(): void {
       disposeObjects.push(object);
     }
   });
+
+  if (player.health <= 0) {
+    resetGame();
+  }
 
   disposeObjects.forEach((object) => object.dispose());
 
