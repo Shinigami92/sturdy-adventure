@@ -18,6 +18,11 @@ export interface BulletOptions {
    * @default 1
    */
   damage?: number;
+
+  /**
+   * @default 1
+   */
+  maxHits?: number;
 }
 
 export class Bullet extends THREE.Mesh implements Updatable, Disposable {
@@ -33,6 +38,10 @@ export class Bullet extends THREE.Mesh implements Updatable, Disposable {
 
   public damage: number;
 
+  public maxHits: number;
+
+  public hits: number;
+
   public constructor(options: BulletOptions = {}) {
     const color = new THREE.Color(0xff6ec7);
     color.convertSRGBToLinear();
@@ -41,15 +50,22 @@ export class Bullet extends THREE.Mesh implements Updatable, Disposable {
       new THREE.MeshBasicMaterial({ color }),
     );
 
-    const { speed = 15, lifetime = 1, damage = 1 } = options;
+    const { speed = 15, lifetime = 1, damage = 1, maxHits = 1 } = options;
     this.speed = speed;
     this.lifetime = lifetime;
     this.damage = damage;
+    this.maxHits = maxHits;
+    this.hits = 0;
   }
 
   public update(delta: number): void {
     this.lifetime -= delta;
     if (this.lifetime <= 0) {
+      this.markForDisposal = true;
+      return;
+    }
+
+    if (this.hits === this.maxHits) {
       this.markForDisposal = true;
       return;
     }

@@ -7,6 +7,7 @@ import { isBullet } from '@/entities/bullets/bullet';
 import { Enemy, isEnemy } from '@/entities/enemies/enemy';
 import { Player } from '@/entities/player';
 import { Revolver } from '@/entities/weapons/revolver';
+import { collision } from '@/utilities/collision';
 import { PlayerControls } from '@/utilities/controls';
 import type { Disposable } from '@/utilities/disposable';
 import { isDisposable } from '@/utilities/disposable';
@@ -135,11 +136,14 @@ function animate(): void {
 
       if (isBullet(object)) {
         for (const enemy of enemies) {
-          // TODO @Shinigami92 2022-09-21: Enhance collision detection
-          if (enemy.position.distanceTo(object.position) < 0.5) {
+          if (collision(enemy, object)) {
             enemy.health -= object.damage;
-            // TODO @Shinigami92 2022-09-21: Maybe the bullet has a piercing effect
-            break;
+            object.hits += 1;
+
+            if (object.hits >= object.maxHits) {
+              // No more detections are needed if piercing has reached its limit
+              break;
+            }
           }
         }
       }
