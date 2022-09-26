@@ -130,11 +130,21 @@ function animate(): void {
     if (isUpdatable(object)) {
       if (isEnemy(object)) {
         object.target.copy(player.position);
-      }
 
-      object.update(delta);
+        for (const enemy of enemies) {
+          if (enemy.id !== object.id && collision(object, enemy)) {
+            // push both objects in opposite directions
+            const direction = new THREE.Vector3();
+            direction.subVectors(enemy.position, object.position);
+            direction.normalize();
+            direction.multiplyScalar(0.05);
+            enemy.position.add(direction);
+            object.position.sub(direction);
+          }
+        }
 
-      if (isBullet(object)) {
+        object.update(delta);
+      } else if (isBullet(object)) {
         for (const enemy of enemies) {
           if (collision(enemy, object)) {
             enemy.health -= object.damage;
@@ -146,6 +156,10 @@ function animate(): void {
             }
           }
         }
+
+        object.update(delta);
+      } else {
+        object.update(delta);
       }
     }
 
