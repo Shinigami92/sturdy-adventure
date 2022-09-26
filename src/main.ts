@@ -7,6 +7,7 @@ import { isBullet } from '@/entities/bullets/bullet';
 import { Enemy, isEnemy } from '@/entities/enemies/enemy';
 import { Player } from '@/entities/player';
 import { Revolver } from '@/entities/weapons/revolver';
+import { Hud } from '@/hud';
 import { collision } from '@/utilities/collision';
 import { PlayerControls } from '@/utilities/controls';
 import type { Disposable } from '@/utilities/disposable';
@@ -23,6 +24,7 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.autoClear = false;
 container.appendChild(renderer.domElement);
 
 let stats: Stats | undefined;
@@ -60,9 +62,15 @@ const crosshair = new THREE.Mesh(
 crosshair.position.set(0, 0, 0);
 scene.add(crosshair);
 
+const hudScene = new THREE.Scene();
+const hud = new Hud({ player });
+hudScene.add(hud);
+
 window.onresize = () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
+
+  // TODO @Shinigami92 2022-09-26: Fix HUD resizing
 
   renderer.setSize(window.innerWidth, window.innerHeight);
 };
@@ -171,6 +179,10 @@ function animate(): void {
   disposeObjects.forEach((object) => object.dispose());
 
   renderer.render(scene, camera);
+
+  hud.update(delta);
+
+  renderer.render(hudScene, hud.camera);
 
   stats?.update();
 }
