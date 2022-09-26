@@ -80,6 +80,7 @@ let delta = 0;
 
 // TODO @Shinigami92 2022-09-21: Maybe build an EnemySpawner
 let enemySpawnTimer = 3;
+let enemyMovementSpeedMultiplier = 1;
 
 function animate(): void {
   requestAnimationFrame(animate);
@@ -107,11 +108,14 @@ function animate(): void {
   // # Perform actions #
   // ###################
   enemySpawnTimer = Math.max(0, enemySpawnTimer - delta);
+  enemyMovementSpeedMultiplier += delta * 0.003;
 
   if (enemySpawnTimer === 0) {
-    enemySpawnTimer = 3;
+    enemySpawnTimer = 1.2;
 
-    const enemy = new Enemy();
+    const enemy = new Enemy({
+      movementSpeed: 4 * enemyMovementSpeedMultiplier,
+    });
     const angle = Math.random() * Math.PI * 2;
     const distance = 20;
     enemy.position.set(
@@ -148,6 +152,19 @@ function animate(): void {
             direction.multiplyScalar(0.05);
             enemy.position.add(direction);
             object.position.sub(direction);
+          }
+        }
+
+        if (collision(object, player)) {
+          // player.health -= object.damage;
+
+          // push all enemies away from the player
+          for (const enemy of enemies) {
+            const direction = new THREE.Vector3();
+            direction.subVectors(enemy.position, player.position);
+            direction.normalize();
+            direction.multiplyScalar(3);
+            enemy.position.add(direction);
           }
         }
 
