@@ -112,110 +112,116 @@ function animate(): void {
   // #######################
   controls.update(delta);
 
-  const newCrosshairPosition = new THREE.Vector3(
-    controls.mouseHudCoordinates.x,
-    controls.mouseHudCoordinates.y,
-    1,
-  );
-  newCrosshairPosition.unproject(camera);
-  newCrosshairPosition.setZ(0);
-
-  crosshair.position.copy(newCrosshairPosition);
-
-  // ###################
-  // # Perform actions #
-  // ###################
-  enemySpawnTimer = Math.max(0, enemySpawnTimer - delta);
-  enemyMovementSpeedMultiplier += delta * 0.003;
-
-  if (enemySpawnTimer === 0) {
-    enemySpawnTimer = 1.2;
-
-    const enemy = new Enemy({
-      movementSpeed: 4 * enemyMovementSpeedMultiplier,
-    });
-    const angle = Math.random() * Math.PI * 2;
-    const distance = 20;
-    enemy.position.set(
-      player.position.x + Math.sin(angle) * distance,
-      player.position.y + Math.cos(angle) * distance,
-      0,
+  if (delta > 1) {
+    console.debug(
+      'Frame rendering took more than 1 second, skipping game logic updates...',
     );
-    scene.add(enemy);
-  }
+  } else {
+    const newCrosshairPosition = new THREE.Vector3(
+      controls.mouseHudCoordinates.x,
+      controls.mouseHudCoordinates.y,
+      1,
+    );
+    newCrosshairPosition.unproject(camera);
+    newCrosshairPosition.setZ(0);
 
-  if (controls.mouseState.primary > 0) {
-    player.weapon.shoot(scene, player.position, crosshair.position);
-  }
+    crosshair.position.copy(newCrosshairPosition);
 
-  // ################################
-  // # Update all updatable objects #
-  // ################################
-  // TODO @Shinigami92 2022-09-21: Filtering the enemies in each render cycle is a performance issue
-  const enemies = scene.children.filter(isEnemy);
+    // ###################
+    // # Perform actions #
+    // ###################
+    enemySpawnTimer = Math.max(0, enemySpawnTimer - delta);
+    enemyMovementSpeedMultiplier += delta * 0.003;
 
-  // TODO @Shinigami92 2022-09-21: Maybe go back to normal loops so all bullets and enemies can be updated/moved before collisions are detected
-  const disposeObjects: Disposable[] = [];
-  scene.traverse((object) => {
-    if (isUpdatable(object)) {
-      if (isEnemy(object)) {
-        object.target.copy(player.position);
+    if (enemySpawnTimer === 0) {
+      enemySpawnTimer = 1.2;
 
-        for (const enemy of enemies) {
-          if (enemy.id !== object.id && collision(object, enemy)) {
-            // push both objects in opposite directions
-            const direction = new THREE.Vector3();
-            direction.subVectors(enemy.position, object.position);
-            direction.normalize();
-            direction.multiplyScalar(0.05);
-            enemy.position.add(direction);
-            object.position.sub(direction);
-          }
-        }
+      const enemy = new Enemy({
+        movementSpeed: 4 * enemyMovementSpeedMultiplier,
+      });
+      const angle = Math.random() * Math.PI * 2;
+      const distance = 20;
+      enemy.position.set(
+        player.position.x + Math.sin(angle) * distance,
+        player.position.y + Math.cos(angle) * distance,
+        0,
+      );
+      scene.add(enemy);
+    }
 
-        if (collision(object, player)) {
-          player.health -= object.damage;
+    if (controls.mouseState.primary > 0) {
+      player.weapon.shoot(scene, player.position, crosshair.position);
+    }
 
-          // push all enemies away from the player
+    // ################################
+    // # Update all updatable objects #
+    // ################################
+    // TODO @Shinigami92 2022-09-21: Filtering the enemies in each render cycle is a performance issue
+    const enemies = scene.children.filter(isEnemy);
+
+    // TODO @Shinigami92 2022-09-21: Maybe go back to normal loops so all bullets and enemies can be updated/moved before collisions are detected
+    const disposeObjects: Disposable[] = [];
+    scene.traverse((object) => {
+      if (isUpdatable(object)) {
+        if (isEnemy(object)) {
+          object.target.copy(player.position);
+
           for (const enemy of enemies) {
-            const direction = new THREE.Vector3();
-            direction.subVectors(enemy.position, player.position);
-            direction.normalize();
-            direction.multiplyScalar(3);
-            enemy.position.add(direction);
-          }
-        }
-
-        object.update(delta);
-      } else if (isBullet(object)) {
-        for (const enemy of enemies) {
-          if (collision(enemy, object)) {
-            enemy.health -= object.damage;
-            object.hits += 1;
-
-            if (object.hits >= object.maxHits) {
-              // No more detections are needed if piercing has reached its limit
-              break;
+            if (enemy.id !== object.id && collision(object, enemy)) {
+              // push both objects in opposite directions
+              const direction = new THREE.Vector3();
+              direction.subVectors(enemy.position, object.position);
+              direction.normalize();
+              direction.multiplyScalar(0.05);
+              enemy.position.add(direction);
+              object.position.sub(direction);
             }
           }
+
+          if (collision(object, player)) {
+            player.health -= object.damage;
+
+            // push all enemies away from the player
+            for (const enemy of enemies) {
+              const direction = new THREE.Vector3();
+              direction.subVectors(enemy.position, player.position);
+              direction.normalize();
+              direction.multiplyScalar(3);
+              enemy.position.add(direction);
+            }
+          }
+
+          object.update(delta);
+        } else if (isBullet(object)) {
+          for (const enemy of enemies) {
+            if (collision(enemy, object)) {
+              enemy.health -= object.damage;
+              object.hits += 1;
+
+              if (object.hits >= object.maxHits) {
+                // No more detections are needed if piercing has reached its limit
+                break;
+              }
+            }
+          }
+
+          object.update(delta);
+        } else {
+          object.update(delta);
         }
-
-        object.update(delta);
-      } else {
-        object.update(delta);
       }
+
+      if (isDisposable(object) && object.markForDisposal) {
+        disposeObjects.push(object);
+      }
+    });
+
+    if (player.health <= 0) {
+      resetGame();
     }
 
-    if (isDisposable(object) && object.markForDisposal) {
-      disposeObjects.push(object);
-    }
-  });
-
-  if (player.health <= 0) {
-    resetGame();
+    disposeObjects.forEach((object) => object.dispose());
   }
-
-  disposeObjects.forEach((object) => object.dispose());
 
   renderer.render(scene, camera);
 
