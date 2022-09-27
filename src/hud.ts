@@ -1,10 +1,13 @@
 import * as THREE from 'three';
 
 import type { Player } from '@/entities/player';
+import type { Score } from '@/score';
 import type { Updatable } from '@/utilities/updatable';
 
 export interface HudOptions {
   readonly player: Readonly<Player>;
+  /** @deprecated */
+  readonly score: Readonly<Score>;
 }
 
 export class Hud extends THREE.Mesh implements Updatable {
@@ -18,12 +21,16 @@ export class Hud extends THREE.Mesh implements Updatable {
 
   private readonly playerRef: Readonly<Player>;
 
+  /** @deprecated */
+  private readonly scoreRef: Readonly<Score>;
+
   public readonly camera: THREE.OrthographicCamera;
 
-  constructor({ player }: HudOptions) {
+  constructor({ player, score }: HudOptions) {
     super();
 
     this.playerRef = player;
+    this.scoreRef = score;
 
     this.camera = new THREE.OrthographicCamera(
       -window.innerWidth / 2,
@@ -53,14 +60,6 @@ export class Hud extends THREE.Mesh implements Updatable {
     if (!bitmap) {
       throw new Error('Could not create HUD bitmap');
     }
-    bitmap.font = 'Normal 40px Arial';
-    bitmap.textAlign = 'left';
-    bitmap.fillStyle = 'rgba(245, 245, 245, 0.75)';
-    bitmap.fillText(
-      'Loading...',
-      window.innerWidth / 2,
-      window.innerHeight / 2,
-    );
     this.bitmap = bitmap;
 
     this.texture?.dispose();
@@ -92,6 +91,11 @@ export class Hud extends THREE.Mesh implements Updatable {
     }
 
     this.bitmap.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+    this.bitmap.font = 'Normal 40px Arial';
+    this.bitmap.fillStyle = 'rgba(245, 245, 245, 0.75)';
+
+    this.bitmap.textAlign = 'left';
 
     // Ammo
     this.bitmap.fillText(
@@ -129,6 +133,22 @@ export class Hud extends THREE.Mesh implements Updatable {
         .padStart(3, '0')}`,
       30,
       window.innerHeight - 90,
+    );
+
+    this.bitmap.textAlign = 'right';
+
+    // Score
+    this.bitmap.fillText(
+      `Score: ${this.scoreRef.score.toString().padStart(6, '0')}`,
+      window.innerWidth - 30,
+      window.innerHeight - 90,
+    );
+
+    // Highscore
+    this.bitmap.fillText(
+      `Highscore: ${this.scoreRef.highScore.toString().padStart(6, '0')}`,
+      window.innerWidth - 30,
+      window.innerHeight - 30,
     );
 
     this.texture.needsUpdate = true;

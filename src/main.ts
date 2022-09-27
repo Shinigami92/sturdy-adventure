@@ -8,6 +8,7 @@ import { Enemy, isEnemy } from '@/entities/enemies/enemy';
 import { Player } from '@/entities/player';
 import { Revolver } from '@/entities/weapons/revolver';
 import { Hud } from '@/hud';
+import { Score } from '@/score';
 import { collision } from '@/utilities/collision';
 import { PlayerControls } from '@/utilities/controls';
 import type { Disposable } from '@/utilities/disposable';
@@ -79,8 +80,11 @@ const crosshair = new THREE.Mesh(
 crosshair.position.set(0, 0, 0);
 scene.add(crosshair);
 
+/** @deprecated */
+const score = new Score();
+
 const hudScene = new THREE.Scene();
-const hud = new Hud({ player });
+const hud = new Hud({ player, score });
 hudScene.add(hud);
 
 window.onresize = () => {
@@ -106,6 +110,7 @@ function resetGame(): void {
     }
   });
 
+  score.reset();
   player.reset();
 
   enemySpawnTimer = 1.2;
@@ -209,6 +214,7 @@ function animate(): void {
             if (collision(enemy, object)) {
               enemy.health -= object.damage;
               object.hits += 1;
+              score.score += 1;
 
               if (object.hits >= object.maxHits) {
                 // No more detections are needed if piercing has reached its limit
