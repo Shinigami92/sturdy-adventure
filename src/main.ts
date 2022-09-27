@@ -47,6 +47,20 @@ const backgroundColor = new THREE.Color(0x576d46);
 backgroundColor.convertSRGBToLinear();
 scene.background = backgroundColor;
 
+const gridAxisColor = new THREE.Color(0xffffff);
+gridAxisColor.convertSRGBToLinear();
+const gridDivisionColor = new THREE.Color(0x8a9b6b);
+gridDivisionColor.convertSRGBToLinear();
+const GRID_SIZE = 20000;
+const grid = new THREE.GridHelper(
+  GRID_SIZE,
+  GRID_SIZE / 2,
+  gridAxisColor,
+  gridDivisionColor,
+);
+grid.rotation.x = Math.PI / 2;
+scene.add(grid);
+
 const player = new Player({ weapon: new Revolver() });
 player.position.set(0, 0, 0);
 scene.add(player);
