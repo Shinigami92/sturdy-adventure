@@ -12,9 +12,9 @@ export class Hud extends THREE.Mesh implements Updatable {
 
   private readonly canvas: HTMLCanvasElement;
 
-  private readonly bitmap: CanvasRenderingContext2D;
+  private bitmap: CanvasRenderingContext2D | undefined;
 
-  private readonly texture: THREE.CanvasTexture;
+  private texture: THREE.CanvasTexture | undefined;
 
   private readonly playerRef: Readonly<Player>;
 
@@ -25,10 +25,6 @@ export class Hud extends THREE.Mesh implements Updatable {
 
     this.playerRef = player;
 
-    this.canvas = document.createElement('canvas');
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
-
     this.camera = new THREE.OrthographicCamera(
       -window.innerWidth / 2,
       window.innerWidth / 2,
@@ -37,6 +33,21 @@ export class Hud extends THREE.Mesh implements Updatable {
       0,
       1,
     );
+
+    this.canvas = document.createElement('canvas');
+
+    this.resize();
+  }
+
+  public resize(): void {
+    this.camera.left = -window.innerWidth / 2;
+    this.camera.right = window.innerWidth / 2;
+    this.camera.top = window.innerHeight / 2;
+    this.camera.bottom = -window.innerHeight / 2;
+    this.camera.updateProjectionMatrix();
+
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
 
     const bitmap = this.canvas.getContext('2d');
     if (!bitmap) {
@@ -52,19 +63,34 @@ export class Hud extends THREE.Mesh implements Updatable {
     );
     this.bitmap = bitmap;
 
+    this.texture?.dispose();
     this.texture = new THREE.CanvasTexture(this.canvas);
     this.texture.needsUpdate = true;
 
+    if (Array.isArray(this.material)) {
+      this.material.forEach((material) => material.dispose());
+    } else {
+      this.material?.dispose();
+    }
     this.material = new THREE.MeshBasicMaterial({ map: this.texture });
     this.material.transparent = true;
 
+    if (Array.isArray(this.geometry)) {
+      this.geometry.forEach((geometry) => geometry.dispose());
+    } else {
+      this.geometry?.dispose();
+    }
     this.geometry = new THREE.PlaneGeometry(
       window.innerWidth,
       window.innerHeight,
     );
   }
 
-  update(delta: number): void {
+  public update(delta: number): void {
+    if (!this.bitmap || !this.texture) {
+      return;
+    }
+
     this.bitmap.clearRect(0, 0, window.innerWidth, window.innerHeight);
     this.bitmap.fillText(
       `Ammo: ${this.playerRef.weapon.ammunition

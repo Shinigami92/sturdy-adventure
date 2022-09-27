@@ -84,7 +84,7 @@ window.onresize = () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 
-  // TODO @Shinigami92 2022-09-26: Fix HUD resizing
+  hud.resize();
 
   renderer.setSize(window.innerWidth, window.innerHeight);
 };
