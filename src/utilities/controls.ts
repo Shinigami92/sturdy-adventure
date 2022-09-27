@@ -121,8 +121,7 @@ export class PlayerControls extends THREE.EventDispatcher {
   public update(delta: number): void {
     const moveMultiplier = delta * this.player.movementSpeed;
 
-    this.player.position.x += this.moveVector.x * moveMultiplier;
-    this.player.position.y += this.moveVector.y * moveMultiplier;
+    this.player.position.addScaledVector(this.moveVector, moveMultiplier);
 
     this.camera.position.set(
       this.player.position.x,
@@ -139,6 +138,8 @@ export class PlayerControls extends THREE.EventDispatcher {
   private updateMovementVector(): void {
     this.moveVector.x = -this.moveState.left + this.moveState.right;
     this.moveVector.y = -this.moveState.down + this.moveState.up;
+    this.moveVector.z = 0;
+    this.moveVector.normalize();
   }
 
   public dispose(): void {
