@@ -20,6 +20,9 @@ if (!container) {
   throw new Error('Container not found');
 }
 
+// Prevent contextmenu
+container.addEventListener('contextmenu', (event) => event.preventDefault());
+
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
