@@ -92,6 +92,8 @@ export class Hud extends THREE.Mesh implements Updatable {
     }
 
     this.bitmap.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+    // Ammo
     this.bitmap.fillText(
       `Ammo: ${this.playerRef.weapon.ammunition
         .toString()
@@ -102,6 +104,7 @@ export class Hud extends THREE.Mesh implements Updatable {
       window.innerHeight - 30,
     );
 
+    // Reload-Indicator
     const ammoReloadProgress =
       this.playerRef.weapon.reloadTimer / this.playerRef.weapon.reloadSpeed;
 
@@ -116,6 +119,17 @@ export class Hud extends THREE.Mesh implements Updatable {
     this.bitmap.strokeStyle = 'rgba(245, 245, 245, 0.75)';
     this.bitmap.stroke();
     this.bitmap.closePath();
+
+    // Health
+    this.bitmap.fillText(
+      `Health: ${this.playerRef.health
+        .toString()
+        .padStart(3, '0')}/${this.playerRef.maxHealth
+        .toString()
+        .padStart(3, '0')}`,
+      30,
+      window.innerHeight - 90,
+    );
 
     this.texture.needsUpdate = true;
   }
