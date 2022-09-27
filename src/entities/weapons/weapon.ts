@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 
+import type { Disposable } from '@/utilities/disposable';
 import type { Updatable } from '@/utilities/updatable';
 
 export interface WeaponOptions {
@@ -19,9 +20,15 @@ export interface WeaponOptions {
   reloadSpeed: number;
 }
 
-export abstract class Weapon extends THREE.Mesh implements Updatable {
+export abstract class Weapon
+  extends THREE.Mesh
+  implements Updatable, Disposable
+{
   public readonly isUpdatable = true;
+  public readonly isDisposable = true;
   public readonly isWeapon = true;
+
+  public markForDisposal = false;
 
   public shootTimer = 0;
 
@@ -58,6 +65,18 @@ export abstract class Weapon extends THREE.Mesh implements Updatable {
     if (this.reloadTimer === 0 && this.ammunition === 0) {
       this.ammunition = this.maxAmmunition;
     }
+  }
+
+  public dispose(): void {
+    this.geometry.dispose();
+
+    if (Array.isArray(this.material)) {
+      this.material.forEach((material) => material.dispose());
+    } else {
+      this.material.dispose();
+    }
+
+    this.parent?.remove(this);
   }
 }
 

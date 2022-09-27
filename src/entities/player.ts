@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 
+import { Revolver } from '@/entities/weapons/revolver';
 import type { Weapon } from '@/entities/weapons/weapon';
 
 export interface PlayerOptions {
@@ -24,7 +25,7 @@ export class Player extends THREE.Mesh {
 
   public movementSpeed: number;
 
-  public weapon: Weapon;
+  #weapon!: Weapon;
 
   public maxHealth: number;
 
@@ -45,7 +46,24 @@ export class Player extends THREE.Mesh {
     this.health = maxHealth;
 
     this.weapon = weapon;
-    this.add(this.weapon);
+  }
+
+  public get weapon(): Weapon {
+    return this.#weapon;
+  }
+
+  public set weapon(weapon) {
+    this.weapon?.dispose();
+
+    this.#weapon = weapon;
+    this.add(weapon);
+  }
+
+  public reset(): void {
+    this.position.set(0, 0, 0);
+    this.health = this.maxHealth;
+
+    this.weapon = new Revolver();
   }
 }
 

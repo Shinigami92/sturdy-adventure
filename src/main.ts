@@ -106,12 +106,7 @@ function resetGame(): void {
     }
   });
 
-  player.position.set(0, 0, 0);
-  player.health = player.maxHealth;
-  player.weapon = new Revolver();
-  player.weapon.ammunition = player.weapon.maxAmmunition;
-  player.weapon.reloadTimer = 0;
-  player.weapon.shootTimer = 0;
+  player.reset();
 
   enemySpawnTimer = 1.2;
   enemyMovementSpeedMultiplier = 1;
