@@ -26,6 +26,7 @@ module.exports = defineConfig({
       'error',
       { allowExpressions: true },
     ],
+    '@typescript-eslint/explicit-member-accessibility': 'error',
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/lines-between-class-members': [
       'warn',

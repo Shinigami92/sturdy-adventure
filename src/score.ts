@@ -4,7 +4,7 @@ import type { Resettable } from '@/utilities/resettable';
 
 /** @deprecated */
 export class Score implements Resettable {
-  readonly isResettable = true;
+  public readonly isResettable = true;
 
   #score = 0;
 

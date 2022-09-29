@@ -26,7 +26,7 @@ export class Hud extends THREE.Mesh implements Updatable {
 
   public readonly camera: THREE.OrthographicCamera;
 
-  constructor({ player, score }: HudOptions) {
+  public constructor({ player, score }: HudOptions) {
     super();
 
     this.playerRef = player;
