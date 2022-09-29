@@ -84,7 +84,7 @@ scene.add(crosshair);
 const score = new Score();
 
 const hudScene = new THREE.Scene();
-const hud = new Hud({ player, score });
+const hud = new Hud({ player, controls, score });
 hudScene.add(hud);
 
 window.onresize = () => {
@@ -133,6 +133,8 @@ function animate(): void {
     console.debug(
       'Frame rendering took more than 1 second, skipping game logic updates...',
     );
+  } else if (controls.gameState.pause > 0) {
+    // console.debug('Game is paused, skipping game logic updates...');
   } else {
     const newCrosshairPosition = new THREE.Vector3(
       controls.mouseHudCoordinates.x,

@@ -12,6 +12,10 @@ export class PlayerControls extends THREE.EventDispatcher {
     right: 0,
   };
 
+  public readonly gameState = {
+    pause: 0,
+  };
+
   public readonly mouseState = {
     primary: 0,
     secondary: 0,
@@ -61,6 +65,14 @@ export class PlayerControls extends THREE.EventDispatcher {
 
       case 'd':
         this.moveState.right = 1;
+        break;
+
+      case 'p':
+        if (this.gameState.pause === 0) {
+          this.gameState.pause = 1;
+        } else {
+          this.gameState.pause = 0;
+        }
         break;
     }
 
@@ -119,6 +131,10 @@ export class PlayerControls extends THREE.EventDispatcher {
   }
 
   public update(delta: number): void {
+    if (this.gameState.pause === 1) {
+      return;
+    }
+
     const moveMultiplier = delta * this.player.movementSpeed;
 
     this.player.position.addScaledVector(this.moveVector, moveMultiplier);

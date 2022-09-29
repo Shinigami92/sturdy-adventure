@@ -2,10 +2,12 @@ import * as THREE from 'three';
 
 import type { Player } from '@/entities/player';
 import type { Score } from '@/score';
+import type { PlayerControls } from '@/utilities/controls';
 import type { Updatable } from '@/utilities/updatable';
 
 export interface HudOptions {
   readonly player: Readonly<Player>;
+  readonly controls: Readonly<PlayerControls>;
   /** @deprecated */
   readonly score: Readonly<Score>;
 }
@@ -21,15 +23,18 @@ export class Hud extends THREE.Mesh implements Updatable {
 
   private readonly playerRef: Readonly<Player>;
 
+  private readonly controlsRef: Readonly<PlayerControls>;
+
   /** @deprecated */
   private readonly scoreRef: Readonly<Score>;
 
   public readonly camera: THREE.OrthographicCamera;
 
-  public constructor({ player, score }: HudOptions) {
+  public constructor({ player, controls, score }: HudOptions) {
     super();
 
     this.playerRef = player;
+    this.controlsRef = controls;
     this.scoreRef = score;
 
     this.camera = new THREE.OrthographicCamera(
@@ -97,59 +102,73 @@ export class Hud extends THREE.Mesh implements Updatable {
 
     this.bitmap.textAlign = 'left';
 
-    // Ammo
-    this.bitmap.fillText(
-      `Ammo: ${this.playerRef.weapon.ammunition
-        .toString()
-        .padStart(3, '0')}/${this.playerRef.weapon.maxAmmunition
-        .toString()
-        .padStart(3, '0')}`,
-      30,
-      window.innerHeight - 30,
-    );
+    if (this.controlsRef.gameState.pause > 0) {
+      this.bitmap.textAlign = 'center';
 
-    // Reload-Indicator
-    const ammoReloadProgress =
-      this.playerRef.weapon.reloadTimer / this.playerRef.weapon.reloadSpeed;
+      this.bitmap.fillStyle = 'rgba(0, 0, 0, 0.75)';
+      this.bitmap.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-    this.bitmap.beginPath();
-    this.bitmap.arc(
-      334,
-      window.innerHeight - 44,
-      14,
-      270 * (Math.PI / 180),
-      Math.PI * 2 * ammoReloadProgress - 90 * (Math.PI / 180),
-    );
-    this.bitmap.strokeStyle = 'rgba(245, 245, 245, 0.75)';
-    this.bitmap.stroke();
-    this.bitmap.closePath();
+      this.bitmap.fillStyle = 'rgba(245, 245, 245, 0.75)';
+      this.bitmap.fillText(
+        'PAUSED',
+        window.innerWidth / 2,
+        window.innerHeight / 2 + 15,
+      );
+    } else {
+      // Ammo
+      this.bitmap.fillText(
+        `Ammo: ${this.playerRef.weapon.ammunition
+          .toString()
+          .padStart(3, '0')}/${this.playerRef.weapon.maxAmmunition
+          .toString()
+          .padStart(3, '0')}`,
+        30,
+        window.innerHeight - 30,
+      );
 
-    // Health
-    this.bitmap.fillText(
-      `Health: ${this.playerRef.health
-        .toString()
-        .padStart(3, '0')}/${this.playerRef.maxHealth
-        .toString()
-        .padStart(3, '0')}`,
-      30,
-      window.innerHeight - 90,
-    );
+      // Reload-Indicator
+      const ammoReloadProgress =
+        this.playerRef.weapon.reloadTimer / this.playerRef.weapon.reloadSpeed;
 
-    this.bitmap.textAlign = 'right';
+      this.bitmap.beginPath();
+      this.bitmap.arc(
+        334,
+        window.innerHeight - 44,
+        14,
+        270 * (Math.PI / 180),
+        Math.PI * 2 * ammoReloadProgress - 90 * (Math.PI / 180),
+      );
+      this.bitmap.strokeStyle = 'rgba(245, 245, 245, 0.75)';
+      this.bitmap.stroke();
+      this.bitmap.closePath();
 
-    // Score
-    this.bitmap.fillText(
-      `Score: ${this.scoreRef.score.toString().padStart(6, '0')}`,
-      window.innerWidth - 30,
-      window.innerHeight - 90,
-    );
+      // Health
+      this.bitmap.fillText(
+        `Health: ${this.playerRef.health
+          .toString()
+          .padStart(3, '0')}/${this.playerRef.maxHealth
+          .toString()
+          .padStart(3, '0')}`,
+        30,
+        window.innerHeight - 90,
+      );
 
-    // Highscore
-    this.bitmap.fillText(
-      `Highscore: ${this.scoreRef.highScore.toString().padStart(6, '0')}`,
-      window.innerWidth - 30,
-      window.innerHeight - 30,
-    );
+      this.bitmap.textAlign = 'right';
+
+      // Score
+      this.bitmap.fillText(
+        `Score: ${this.scoreRef.score.toString().padStart(6, '0')}`,
+        window.innerWidth - 30,
+        window.innerHeight - 90,
+      );
+
+      // Highscore
+      this.bitmap.fillText(
+        `Highscore: ${this.scoreRef.highScore.toString().padStart(6, '0')}`,
+        window.innerWidth - 30,
+        window.innerHeight - 30,
+      );
+    }
 
     this.texture.needsUpdate = true;
   }
