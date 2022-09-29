@@ -2,6 +2,7 @@ import * as THREE from 'three';
 
 import { Revolver } from '@/entities/weapons/revolver';
 import type { Weapon } from '@/entities/weapons/weapon';
+import type { Resettable } from '@/utilities/resettable';
 
 export interface PlayerOptions {
   /**
@@ -20,7 +21,8 @@ export interface PlayerOptions {
   maxHealth?: number;
 }
 
-export class Player extends THREE.Mesh {
+export class Player extends THREE.Mesh implements Resettable {
+  public readonly isResettable = true;
   public readonly isPlayer = true;
 
   public movementSpeed: number;

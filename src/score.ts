@@ -1,6 +1,11 @@
 // TODO @Shinigami92 2022-09-27: Temporary class which will be replaced by another Score system
+
+import type { Resettable } from '@/utilities/resettable';
+
 /** @deprecated */
-export class Score {
+export class Score implements Resettable {
+  readonly isResettable = true;
+
   #score = 0;
 
   #highScore = 0;
