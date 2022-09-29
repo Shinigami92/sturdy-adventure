@@ -58,6 +58,16 @@ export abstract class Weapon
     shootAt: THREE.Vector3,
   ): void;
 
+  public reload(): void {
+    if (this.ammunition === this.maxAmmunition) {
+      return;
+    }
+
+    // TODO @Shinigami92 2022-09-29: It would be nice not to have to set ammunition to 0
+    this.ammunition = 0;
+    this.reloadTimer = this.reloadSpeed;
+  }
+
   public update(delta: number): void {
     this.shootTimer = Math.max(0, this.shootTimer - delta);
     this.reloadTimer = Math.max(0, this.reloadTimer - delta);

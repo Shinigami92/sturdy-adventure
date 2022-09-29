@@ -14,6 +14,7 @@ export class PlayerControls extends THREE.EventDispatcher {
 
   public readonly gameState = {
     pause: 0,
+    reload: 0,
   };
 
   public readonly mouseState = {
@@ -72,6 +73,23 @@ export class PlayerControls extends THREE.EventDispatcher {
           this.gameState.pause = 1;
         } else {
           this.gameState.pause = 0;
+        }
+        break;
+
+      case 'r':
+        // TODO @Shinigami92 2022-09-29: This needs to be moved out of the PlayerControls
+        if (
+          this.gameState.reload === 0 &&
+          this.player.weapon.ammunition < this.player.weapon.maxAmmunition
+        ) {
+          this.gameState.reload = 1;
+
+          this.player.weapon.reload();
+
+          // TODO @Shinigami92 2022-09-29: Find an event-based solution instead of using setTimeout
+          setTimeout(() => {
+            this.gameState.reload = 0;
+          }, this.player.weapon.reloadSpeed);
         }
         break;
     }
