@@ -145,6 +145,23 @@ export class KeybindingManager extends THREE.EventDispatcher {
             },
           });
           break;
+
+        case 'move':
+          this.mouseInputManager.register({
+            button: 0,
+            mousemove: ({ x, y }) => {
+              keybind.value = { x, y };
+              this.dispatchEvent({
+                type: keybind.action,
+                target: this,
+                value: keybind.value,
+                reset: () => {
+                  keybind.value = { x: 0, y: 0 };
+                },
+              });
+            },
+          });
+          break;
       }
     }
   }

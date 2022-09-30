@@ -32,8 +32,6 @@ export class PlayerControls extends THREE.EventDispatcher {
 
   private readonly lastCameraPosition = new THREE.Vector3();
 
-  private readonly _mousemove = this.mousemove.bind(this);
-
   public constructor(
     private readonly camera: THREE.Camera,
     private readonly domElement: HTMLCanvasElement,
@@ -44,8 +42,6 @@ export class PlayerControls extends THREE.EventDispatcher {
     this.keybindingManager = new KeybindingManager({
       domElement: this.domElement,
     });
-
-    this.domElement.addEventListener('mousemove', this._mousemove, false);
 
     this.keybindingManager.register(
       new KeybindAction({
@@ -163,12 +159,22 @@ export class PlayerControls extends THREE.EventDispatcher {
       this.mouseState.primary = event.value;
     });
 
-    this.updateMovementVector();
-  }
+    this.keybindingManager.register(
+      new KeybindAction({
+        action: 'player:crosshair',
+        label: 'Move Crosshair',
+        type: 'mouse',
+        key: 'move',
+        state: 'move',
+      }),
+    );
 
-  private mousemove(event: MouseEvent): void {
-    this.mouseHudCoordinates.x = (event.clientX / window.innerWidth) * 2 - 1;
-    this.mouseHudCoordinates.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    this.keybindingManager.addEventListener('player:crosshair', (event) => {
+      this.mouseHudCoordinates.x = event.value.x;
+      this.mouseHudCoordinates.y = event.value.y;
+    });
+
+    this.updateMovementVector();
   }
 
   public update(delta: number): void {
@@ -197,9 +203,5 @@ export class PlayerControls extends THREE.EventDispatcher {
     this.moveVector.y = -this.moveState.down + this.moveState.up;
     this.moveVector.z = 0;
     this.moveVector.normalize();
-  }
-
-  public dispose(): void {
-    this.domElement.removeEventListener('mousemove', this._mousemove, false);
   }
 }

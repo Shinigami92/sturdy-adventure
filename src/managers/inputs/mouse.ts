@@ -1,13 +1,17 @@
 import type { Disposable } from '@/utilities/disposable';
 
-export type EventListenerElement = {
-  addEventListener:
-    | HTMLElement['addEventListener']
-    | typeof window['addEventListener'];
-  removeEventListener:
-    | HTMLElement['removeEventListener']
-    | typeof window['removeEventListener'];
-};
+export type EventListenerElement =
+  | Pick<
+      HTMLElement,
+      | 'addEventListener'
+      | 'removeEventListener'
+      | 'clientWidth'
+      | 'clientHeight'
+    >
+  | Pick<
+      typeof window,
+      'addEventListener' | 'removeEventListener' | 'innerWidth' | 'innerHeight'
+    >;
 
 export interface MouseInputManagerOptions {
   readonly domElement?: EventListenerElement;
@@ -22,12 +26,14 @@ export class MouseInputManager implements Disposable {
     button: number;
     mousedown?: () => void;
     mouseup?: () => void;
+    mousemove?: ({ x, y }: { x: number; y: number }) => void;
   }> = [];
 
   private readonly container: EventListenerElement;
 
   private readonly _mousedown = this.mousedown.bind(this);
   private readonly _mouseup = this.mouseup.bind(this);
+  private readonly _mousemove = this.mousemove.bind(this);
 
   public constructor(
     options: MouseInputManagerOptions = { domElement: window },
@@ -36,6 +42,7 @@ export class MouseInputManager implements Disposable {
 
     this.container.addEventListener('mousedown', this._mousedown, false);
     this.container.addEventListener('mouseup', this._mouseup, false);
+    this.container.addEventListener('mousemove', this._mousemove, false);
   }
 
   public getButton(key: string): number {
@@ -68,17 +75,42 @@ export class MouseInputManager implements Disposable {
     }
   }
 
+  private get innerWidth(): number {
+    return 'innerWidth' in this.container
+      ? this.container.innerWidth
+      : this.container.clientWidth;
+  }
+
+  private get innerHeight(): number {
+    return 'innerHeight' in this.container
+      ? this.container.innerHeight
+      : this.container.clientHeight;
+  }
+
+  private mousemove(event: MouseEvent | Event): void {
+    const { clientX, clientY } = event as MouseEvent;
+    const x = (clientX / this.innerWidth) * 2 - 1;
+    const y = -(clientY / this.innerHeight) * 2 + 1;
+    for (const { mousemove } of this.registrations) {
+      if (mousemove) {
+        mousemove({ x, y });
+      }
+    }
+  }
+
   public register(options: {
     button: number;
     mousedown?: () => void;
     mouseup?: () => void;
+    mousemove?: ({ x, y }: { x: number; y: number }) => void;
   }): void {
-    const { button, mousedown, mouseup } = options;
-    this.registrations.push({ button, mousedown, mouseup });
+    const { button, mousedown, mouseup, mousemove } = options;
+    this.registrations.push({ button, mousedown, mouseup, mousemove });
   }
 
   public dispose(): void {
     this.container.removeEventListener('mousedown', this._mousedown, false);
     this.container.removeEventListener('mouseup', this._mouseup, false);
+    this.container.removeEventListener('mousemove', this._mousemove, false);
   }
 }

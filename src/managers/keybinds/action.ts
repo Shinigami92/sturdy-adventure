@@ -1,6 +1,6 @@
 export type KeybindType = 'keyboard' | 'mouse';
 
-export type KeybindState = 'pressed' | 'up' | 'down' | 'toggle';
+export type KeybindState = 'pressed' | 'up' | 'down' | 'toggle' | 'move';
 
 export interface KeybindActionOptions {
   readonly action: string;
@@ -17,7 +17,7 @@ export class KeybindAction {
   public readonly key: string;
   public readonly state: KeybindState;
 
-  public value = 0;
+  public value: number | { x: number; y: number } = 0;
 
   public constructor({
     action,
