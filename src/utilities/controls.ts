@@ -1,10 +1,14 @@
 import * as THREE from 'three';
 
 import type { Player } from '@/entities/player';
+import { KeybindAction } from '@/managers/keybinds/action';
+import { KeybindingManager } from '@/managers/keybinds/manager';
 
 const EPS = 0.000001;
 
 export class PlayerControls extends THREE.EventDispatcher {
+  private readonly keybindingManager = new KeybindingManager();
+
   public readonly moveState = {
     up: 0,
     down: 0,
@@ -47,21 +51,43 @@ export class PlayerControls extends THREE.EventDispatcher {
     window.addEventListener('keydown', this._keydown, false);
     window.addEventListener('keyup', this._keyup, false);
 
+    this.keybindingManager.register(
+      new KeybindAction({
+        action: 'player:moveup',
+        label: 'Move Up',
+        type: 'keyboard',
+        key: 'w',
+        state: 'pressed',
+      }),
+    );
+
+    this.keybindingManager.register(
+      new KeybindAction({
+        action: 'player:movedown',
+        label: 'Move Down',
+        type: 'keyboard',
+        key: 's',
+        state: 'pressed',
+      }),
+    );
+
+    this.keybindingManager.addEventListener('player:moveup', (event) => {
+      this.moveState.up = event.value;
+      this.updateMovementVector();
+    });
+
+    this.keybindingManager.addEventListener('player:movedown', (event) => {
+      this.moveState.down = event.value;
+      this.updateMovementVector();
+    });
+
     this.updateMovementVector();
   }
 
   private keydown(event: KeyboardEvent): void {
     switch (event.key) {
-      case 'w':
-        this.moveState.up = 1;
-        break;
-
       case 'a':
         this.moveState.left = 1;
-        break;
-
-      case 's':
-        this.moveState.down = 1;
         break;
 
       case 'd':
@@ -99,16 +125,8 @@ export class PlayerControls extends THREE.EventDispatcher {
 
   private keyup(event: KeyboardEvent): void {
     switch (event.key) {
-      case 'w':
-        this.moveState.up = 0;
-        break;
-
       case 'a':
         this.moveState.left = 0;
-        break;
-
-      case 's':
-        this.moveState.down = 0;
         break;
 
       case 'd':
