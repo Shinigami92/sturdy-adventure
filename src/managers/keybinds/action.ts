@@ -1,9 +1,11 @@
-export type KeybindState = 'up' | 'down' | 'pressed' | 'toggle';
+export type KeybindType = 'keyboard';
+
+export type KeybindState = 'pressed' | 'up' | 'down' | 'toggle';
 
 export interface KeybindActionOptions {
   readonly action: string;
   readonly label: string;
-  readonly type: string;
+  readonly type: KeybindType;
   readonly key: string;
   readonly state: KeybindState;
 }
@@ -11,7 +13,7 @@ export interface KeybindActionOptions {
 export class KeybindAction {
   public readonly action: string;
   public readonly label: string;
-  public readonly type: string;
+  public readonly type: KeybindType;
   public readonly key: string;
   public readonly state: KeybindState;
 
