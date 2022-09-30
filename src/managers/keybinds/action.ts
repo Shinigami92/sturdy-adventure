@@ -17,6 +17,8 @@ export class KeybindAction {
   public readonly key: string;
   public readonly state: KeybindState;
 
+  public value = 0;
+
   public constructor({
     action,
     label,

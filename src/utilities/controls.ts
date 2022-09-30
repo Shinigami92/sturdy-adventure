@@ -109,19 +109,25 @@ export class PlayerControls extends THREE.EventDispatcher {
       this.updateMovementVector();
     });
 
+    this.keybindingManager.register(
+      new KeybindAction({
+        action: 'game:pause',
+        label: 'Pause Game',
+        type: 'keyboard',
+        key: 'p',
+        state: 'toggle',
+      }),
+    );
+
+    this.keybindingManager.addEventListener('game:pause', (event) => {
+      this.gameState.pause = event.value;
+    });
+
     this.updateMovementVector();
   }
 
   private keydown(event: KeyboardEvent): void {
     switch (event.key) {
-      case 'p':
-        if (this.gameState.pause === 0) {
-          this.gameState.pause = 1;
-        } else {
-          this.gameState.pause = 0;
-        }
-        break;
-
       case 'r':
         // TODO @Shinigami92 2022-09-29: This needs to be moved out of the PlayerControls
         if (
