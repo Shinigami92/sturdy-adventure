@@ -33,7 +33,6 @@ export class PlayerControls extends THREE.EventDispatcher {
   private readonly lastCameraPosition = new THREE.Vector3();
 
   private readonly _keydown = this.keydown.bind(this);
-  private readonly _keyup = this.keyup.bind(this);
   private readonly _mousedown = this.mousedown.bind(this);
   private readonly _mouseup = this.mouseup.bind(this);
   private readonly _mousemove = this.mousemove.bind(this);
@@ -49,7 +48,6 @@ export class PlayerControls extends THREE.EventDispatcher {
     this.domElement.addEventListener('mouseup', this._mouseup, false);
     this.domElement.addEventListener('mousemove', this._mousemove, false);
     window.addEventListener('keydown', this._keydown, false);
-    window.addEventListener('keyup', this._keyup, false);
 
     this.keybindingManager.register(
       new KeybindAction({
@@ -61,6 +59,26 @@ export class PlayerControls extends THREE.EventDispatcher {
       }),
     );
 
+    this.keybindingManager.addEventListener('player:moveup', (event) => {
+      this.moveState.up = event.value;
+      this.updateMovementVector();
+    });
+
+    this.keybindingManager.register(
+      new KeybindAction({
+        action: 'player:moveleft',
+        label: 'Move Left',
+        type: 'keyboard',
+        key: 'a',
+        state: 'pressed',
+      }),
+    );
+
+    this.keybindingManager.addEventListener('player:moveleft', (event) => {
+      this.moveState.left = event.value;
+      this.updateMovementVector();
+    });
+
     this.keybindingManager.register(
       new KeybindAction({
         action: 'player:movedown',
@@ -71,13 +89,23 @@ export class PlayerControls extends THREE.EventDispatcher {
       }),
     );
 
-    this.keybindingManager.addEventListener('player:moveup', (event) => {
-      this.moveState.up = event.value;
+    this.keybindingManager.addEventListener('player:movedown', (event) => {
+      this.moveState.down = event.value;
       this.updateMovementVector();
     });
 
-    this.keybindingManager.addEventListener('player:movedown', (event) => {
-      this.moveState.down = event.value;
+    this.keybindingManager.register(
+      new KeybindAction({
+        action: 'player:moveright',
+        label: 'Move Right',
+        type: 'keyboard',
+        key: 'd',
+        state: 'pressed',
+      }),
+    );
+
+    this.keybindingManager.addEventListener('player:moveright', (event) => {
+      this.moveState.right = event.value;
       this.updateMovementVector();
     });
 
@@ -86,14 +114,6 @@ export class PlayerControls extends THREE.EventDispatcher {
 
   private keydown(event: KeyboardEvent): void {
     switch (event.key) {
-      case 'a':
-        this.moveState.left = 1;
-        break;
-
-      case 'd':
-        this.moveState.right = 1;
-        break;
-
       case 'p':
         if (this.gameState.pause === 0) {
           this.gameState.pause = 1;
@@ -117,20 +137,6 @@ export class PlayerControls extends THREE.EventDispatcher {
             this.gameState.reload = 0;
           }, this.player.weapon.reloadSpeed);
         }
-        break;
-    }
-
-    this.updateMovementVector();
-  }
-
-  private keyup(event: KeyboardEvent): void {
-    switch (event.key) {
-      case 'a':
-        this.moveState.left = 0;
-        break;
-
-      case 'd':
-        this.moveState.right = 0;
         break;
     }
 
@@ -199,6 +205,5 @@ export class PlayerControls extends THREE.EventDispatcher {
     this.domElement.removeEventListener('mouseup', this._mouseup, false);
     this.domElement.removeEventListener('mousemove', this._mousemove, false);
     window.removeEventListener('keydown', this._keydown, false);
-    window.removeEventListener('keyup', this._keyup, false);
   }
 }
