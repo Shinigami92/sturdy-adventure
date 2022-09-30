@@ -1,7 +1,28 @@
+export type EventListenerElement = {
+  addEventListener:
+    | HTMLElement['addEventListener']
+    | typeof window['addEventListener'];
+  removeEventListener:
+    | HTMLElement['removeEventListener']
+    | typeof window['removeEventListener'];
+};
+
+export interface MouseInputManagerOptions {
+  readonly domElement?: EventListenerElement;
+}
+
 export class MouseInputManager {
   private readonly eventBindings: Array<
     [type: 'mousedown' | 'mouseup', listener: (event: MouseEvent) => void]
   > = [];
+
+  private readonly container: EventListenerElement;
+
+  public constructor(
+    options: MouseInputManagerOptions = { domElement: window },
+  ) {
+    this.container = options.domElement ?? window;
+  }
 
   public getButton(key: string): number {
     switch (key) {
@@ -32,7 +53,7 @@ export class MouseInputManager {
         },
       ];
 
-      window.addEventListener(type, listener, false);
+      this.container.addEventListener(type, listener as any, false);
 
       this.eventBindings.push([type, listener]);
     }
@@ -47,7 +68,7 @@ export class MouseInputManager {
         },
       ];
 
-      window.addEventListener(type, listener, false);
+      this.container.addEventListener(type, listener as any, false);
 
       this.eventBindings.push([type, listener]);
     }
@@ -55,7 +76,7 @@ export class MouseInputManager {
 
   public dispose(): void {
     for (const [type, listener] of this.eventBindings) {
-      window.removeEventListener(type, listener, false);
+      this.container.removeEventListener(type, listener as any, false);
     }
   }
 }

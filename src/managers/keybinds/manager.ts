@@ -4,11 +4,29 @@ import { KeyboardInputManager } from '@/managers/inputs/keyboard';
 import { MouseInputManager } from '@/managers/inputs/mouse';
 import type { KeybindAction } from '@/managers/keybinds/action';
 
+export interface KeybindingManagerOptions {
+  readonly domElement?: HTMLElement | typeof window;
+}
+
 export class KeybindingManager extends THREE.EventDispatcher {
   private readonly keybinds: KeybindAction[] = [];
 
-  private readonly keyboardInputManager = new KeyboardInputManager();
-  private readonly mouseInputManager = new MouseInputManager();
+  private readonly keyboardInputManager;
+  private readonly mouseInputManager;
+
+  public constructor(
+    options: KeybindingManagerOptions = { domElement: window },
+  ) {
+    super();
+
+    this.keyboardInputManager = new KeyboardInputManager({
+      domElement: window,
+    });
+
+    this.mouseInputManager = new MouseInputManager({
+      domElement: options.domElement ?? window,
+    });
+  }
 
   public register(keybind: KeybindAction): void {
     this.keybinds.push(keybind);
@@ -130,4 +148,8 @@ export class KeybindingManager extends THREE.EventDispatcher {
       }
     }
   }
+
+  // TODO @Shinigami92 2022-09-30: Implement unregister
+
+  // TODO @Shinigami92 2022-09-30: Implement dispose
 }

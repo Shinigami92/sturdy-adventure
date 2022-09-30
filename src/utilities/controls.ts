@@ -7,7 +7,7 @@ import { KeybindingManager } from '@/managers/keybinds/manager';
 const EPS = 0.000001;
 
 export class PlayerControls extends THREE.EventDispatcher {
-  private readonly keybindingManager = new KeybindingManager();
+  private readonly keybindingManager;
 
   public readonly moveState = {
     up: 0,
@@ -40,6 +40,10 @@ export class PlayerControls extends THREE.EventDispatcher {
     private readonly player: Player,
   ) {
     super();
+
+    this.keybindingManager = new KeybindingManager({
+      domElement: this.domElement,
+    });
 
     this.domElement.addEventListener('mousemove', this._mousemove, false);
 
