@@ -1,3 +1,5 @@
+import type { Disposable } from '@/utilities/disposable';
+
 export type EventListenerElement = {
   addEventListener:
     | HTMLElement['addEventListener']
@@ -11,7 +13,11 @@ export interface KeyboardInputManagerOptions {
   readonly domElement?: EventListenerElement;
 }
 
-export class KeyboardInputManager {
+export class KeyboardInputManager implements Disposable {
+  public readonly isDisposable = true;
+
+  public markForDisposal = false;
+
   private readonly registrations: Array<{
     key: string;
     keydown?: () => void;

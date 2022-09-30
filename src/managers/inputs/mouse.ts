@@ -1,3 +1,5 @@
+import type { Disposable } from '@/utilities/disposable';
+
 export type EventListenerElement = {
   addEventListener:
     | HTMLElement['addEventListener']
@@ -11,7 +13,11 @@ export interface MouseInputManagerOptions {
   readonly domElement?: EventListenerElement;
 }
 
-export class MouseInputManager {
+export class MouseInputManager implements Disposable {
+  public readonly isDisposable = true;
+
+  public markForDisposal = false;
+
   private readonly registrations: Array<{
     button: number;
     mousedown?: () => void;
