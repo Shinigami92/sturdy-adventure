@@ -32,8 +32,6 @@ export class PlayerControls extends THREE.EventDispatcher {
 
   private readonly lastCameraPosition = new THREE.Vector3();
 
-  private readonly _mousedown = this.mousedown.bind(this);
-  private readonly _mouseup = this.mouseup.bind(this);
   private readonly _mousemove = this.mousemove.bind(this);
 
   public constructor(
@@ -43,8 +41,6 @@ export class PlayerControls extends THREE.EventDispatcher {
   ) {
     super();
 
-    this.domElement.addEventListener('mousedown', this._mousedown, false);
-    this.domElement.addEventListener('mouseup', this._mouseup, false);
     this.domElement.addEventListener('mousemove', this._mousemove, false);
 
     this.keybindingManager.register(
@@ -149,31 +145,21 @@ export class PlayerControls extends THREE.EventDispatcher {
       }
     });
 
+    this.keybindingManager.register(
+      new KeybindAction({
+        action: 'shoot:primary',
+        label: 'Shoot Primary',
+        type: 'mouse',
+        key: 'left',
+        state: 'pressed',
+      }),
+    );
+
+    this.keybindingManager.addEventListener('shoot:primary', (event) => {
+      this.mouseState.primary = event.value;
+    });
+
     this.updateMovementVector();
-  }
-
-  private mousedown(event: MouseEvent): void {
-    switch (event.button) {
-      case 0:
-        this.mouseState.primary = 1;
-        break;
-
-      case 2:
-        this.mouseState.secondary = 1;
-        break;
-    }
-  }
-
-  private mouseup(event: MouseEvent): void {
-    switch (event.button) {
-      case 0:
-        this.mouseState.primary = 0;
-        break;
-
-      case 2:
-        this.mouseState.secondary = 0;
-        break;
-    }
   }
 
   private mousemove(event: MouseEvent): void {
@@ -210,8 +196,6 @@ export class PlayerControls extends THREE.EventDispatcher {
   }
 
   public dispose(): void {
-    this.domElement.removeEventListener('mousedown', this._mousedown, false);
-    this.domElement.removeEventListener('mouseup', this._mouseup, false);
     this.domElement.removeEventListener('mousemove', this._mousemove, false);
   }
 }

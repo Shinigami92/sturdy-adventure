@@ -1,4 +1,4 @@
-export type KeybindType = 'keyboard';
+export type KeybindType = 'keyboard' | 'mouse';
 
 export type KeybindState = 'pressed' | 'up' | 'down' | 'toggle';
 
