@@ -32,7 +32,6 @@ export class PlayerControls extends THREE.EventDispatcher {
 
   private readonly lastCameraPosition = new THREE.Vector3();
 
-  private readonly _keydown = this.keydown.bind(this);
   private readonly _mousedown = this.mousedown.bind(this);
   private readonly _mouseup = this.mouseup.bind(this);
   private readonly _mousemove = this.mousemove.bind(this);
@@ -47,7 +46,6 @@ export class PlayerControls extends THREE.EventDispatcher {
     this.domElement.addEventListener('mousedown', this._mousedown, false);
     this.domElement.addEventListener('mouseup', this._mouseup, false);
     this.domElement.addEventListener('mousemove', this._mousemove, false);
-    window.addEventListener('keydown', this._keydown, false);
 
     this.keybindingManager.register(
       new KeybindAction({
@@ -123,28 +121,33 @@ export class PlayerControls extends THREE.EventDispatcher {
       this.gameState.pause = event.value;
     });
 
-    this.updateMovementVector();
-  }
+    this.keybindingManager.register(
+      new KeybindAction({
+        action: 'weapon:reload',
+        label: 'Reload Weapon',
+        type: 'keyboard',
+        key: 'r',
+        state: 'down',
+      }),
+    );
 
-  private keydown(event: KeyboardEvent): void {
-    switch (event.key) {
-      case 'r':
-        // TODO @Shinigami92 2022-09-29: This needs to be moved out of the PlayerControls
-        if (
-          this.gameState.reload === 0 &&
-          this.player.weapon.ammunition < this.player.weapon.maxAmmunition
-        ) {
-          this.gameState.reload = 1;
+    this.keybindingManager.addEventListener('weapon:reload', (event) => {
+      // TODO @Shinigami92 2022-09-29: This needs to be moved out of the PlayerControls
+      if (
+        this.gameState.reload === 0 &&
+        this.player.weapon.ammunition < this.player.weapon.maxAmmunition
+      ) {
+        this.gameState.reload = event.value;
 
-          this.player.weapon.reload();
+        this.player.weapon.reload();
 
-          // TODO @Shinigami92 2022-09-29: Find an event-based solution instead of using setTimeout
-          setTimeout(() => {
-            this.gameState.reload = 0;
-          }, this.player.weapon.reloadSpeed);
-        }
-        break;
-    }
+        // TODO @Shinigami92 2022-09-29: Find an event-based solution instead of using setTimeout
+        setTimeout(() => {
+          event.reset();
+          this.gameState.reload = 0;
+        }, this.player.weapon.reloadSpeed * 1000);
+      }
+    });
 
     this.updateMovementVector();
   }
@@ -210,6 +213,5 @@ export class PlayerControls extends THREE.EventDispatcher {
     this.domElement.removeEventListener('mousedown', this._mousedown, false);
     this.domElement.removeEventListener('mouseup', this._mouseup, false);
     this.domElement.removeEventListener('mousemove', this._mousemove, false);
-    window.removeEventListener('keydown', this._keydown, false);
   }
 }
