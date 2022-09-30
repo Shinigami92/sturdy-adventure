@@ -12,16 +12,24 @@ export interface MouseInputManagerOptions {
 }
 
 export class MouseInputManager {
-  private readonly eventBindings: Array<
-    [type: 'mousedown' | 'mouseup', listener: (event: MouseEvent) => void]
-  > = [];
+  private readonly registrations: Array<{
+    button: number;
+    mousedown?: () => void;
+    mouseup?: () => void;
+  }> = [];
 
   private readonly container: EventListenerElement;
+
+  private readonly _mousedown = this.mousedown.bind(this);
+  private readonly _mouseup = this.mouseup.bind(this);
 
   public constructor(
     options: MouseInputManagerOptions = { domElement: window },
   ) {
     this.container = options.domElement ?? window;
+
+    this.container.addEventListener('mousedown', this._mousedown, false);
+    this.container.addEventListener('mouseup', this._mouseup, false);
   }
 
   public getButton(key: string): number {
@@ -36,47 +44,35 @@ export class MouseInputManager {
     throw new Error(`Unknown mouse button: ${key}`);
   }
 
+  private mousedown(event: MouseEvent | Event): void {
+    const { button: eventButton } = event as MouseEvent;
+    for (const { button, mousedown } of this.registrations) {
+      if (mousedown && eventButton === button) {
+        mousedown();
+      }
+    }
+  }
+
+  private mouseup(event: MouseEvent | Event): void {
+    const { button: eventButton } = event as MouseEvent;
+    for (const { button, mouseup } of this.registrations) {
+      if (mouseup && eventButton === button) {
+        mouseup();
+      }
+    }
+  }
+
   public register(options: {
     button: number;
     mousedown?: () => void;
     mouseup?: () => void;
   }): void {
     const { button, mousedown, mouseup } = options;
-
-    if (mousedown) {
-      const [type, listener]: ['mousedown', (event: MouseEvent) => void] = [
-        'mousedown',
-        (event) => {
-          if (event.button === button) {
-            mousedown();
-          }
-        },
-      ];
-
-      this.container.addEventListener(type, listener as any, false);
-
-      this.eventBindings.push([type, listener]);
-    }
-
-    if (mouseup) {
-      const [type, listener]: ['mouseup', (event: MouseEvent) => void] = [
-        'mouseup',
-        (event) => {
-          if (event.button === button) {
-            mouseup();
-          }
-        },
-      ];
-
-      this.container.addEventListener(type, listener as any, false);
-
-      this.eventBindings.push([type, listener]);
-    }
+    this.registrations.push({ button, mousedown, mouseup });
   }
 
   public dispose(): void {
-    for (const [type, listener] of this.eventBindings) {
-      this.container.removeEventListener(type, listener as any, false);
-    }
+    this.container.removeEventListener('mousedown', this._mousedown, false);
+    this.container.removeEventListener('mouseup', this._mouseup, false);
   }
 }

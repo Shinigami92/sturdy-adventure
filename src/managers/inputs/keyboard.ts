@@ -12,16 +12,42 @@ export interface KeyboardInputManagerOptions {
 }
 
 export class KeyboardInputManager {
-  private readonly eventBindings: Array<
-    [type: 'keydown' | 'keyup', listener: (event: KeyboardEvent) => void]
-  > = [];
+  private readonly registrations: Array<{
+    key: string;
+    keydown?: () => void;
+    keyup?: () => void;
+  }> = [];
 
   private readonly container: EventListenerElement;
+
+  private readonly _keydown = this.keydown.bind(this);
+  private readonly _keyup = this.keyup.bind(this);
 
   public constructor(
     options: KeyboardInputManagerOptions = { domElement: window },
   ) {
     this.container = options.domElement ?? window;
+
+    this.container.addEventListener('keydown', this._keydown, false);
+    this.container.addEventListener('keyup', this._keyup, false);
+  }
+
+  private keydown(event: KeyboardEvent | Event): void {
+    const { key: eventKey } = event as KeyboardEvent;
+    for (const { key, keydown } of this.registrations) {
+      if (keydown && eventKey === key) {
+        keydown();
+      }
+    }
+  }
+
+  private keyup(event: KeyboardEvent | Event): void {
+    const { key: eventKey } = event as KeyboardEvent;
+    for (const { key, keyup } of this.registrations) {
+      if (keyup && eventKey === key) {
+        keyup();
+      }
+    }
   }
 
   public register(options: {
@@ -30,41 +56,11 @@ export class KeyboardInputManager {
     keyup?: () => void;
   }): void {
     const { key, keydown, keyup } = options;
-
-    if (keydown) {
-      const [type, listener]: ['keydown', (event: KeyboardEvent) => void] = [
-        'keydown',
-        (event) => {
-          if (event.key === key) {
-            keydown();
-          }
-        },
-      ];
-
-      this.container.addEventListener(type, listener as any, false);
-
-      this.eventBindings.push([type, listener]);
-    }
-
-    if (keyup) {
-      const [type, listener]: ['keyup', (event: KeyboardEvent) => void] = [
-        'keyup',
-        (event) => {
-          if (event.key === key) {
-            keyup();
-          }
-        },
-      ];
-
-      this.container.addEventListener(type, listener as any, false);
-
-      this.eventBindings.push([type, listener]);
-    }
+    this.registrations.push({ key, keydown, keyup });
   }
 
   public dispose(): void {
-    for (const [type, listener] of this.eventBindings) {
-      this.container.removeEventListener(type, listener as any, false);
-    }
+    this.container.removeEventListener('keydown', this._keydown, false);
+    this.container.removeEventListener('keyup', this._keyup, false);
   }
 }
