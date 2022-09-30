@@ -1,13 +1,8 @@
 import type { Disposable } from '@/utilities/disposable';
 
-export type EventListenerElement = {
-  addEventListener:
-    | HTMLElement['addEventListener']
-    | typeof window['addEventListener'];
-  removeEventListener:
-    | HTMLElement['removeEventListener']
-    | typeof window['removeEventListener'];
-};
+export type EventListenerElement =
+  | Pick<HTMLElement, 'addEventListener' | 'removeEventListener'>
+  | Pick<typeof window, 'addEventListener' | 'removeEventListener'>;
 
 export interface KeyboardInputManagerOptions {
   readonly domElement?: EventListenerElement;
