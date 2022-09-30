@@ -1,10 +1,14 @@
 import * as THREE from 'three';
 
 import type { Player } from '@/entities/player';
+import { KeybindAction } from '@/managers/keybinds/action';
+import { KeybindingManager } from '@/managers/keybinds/manager';
 
 const EPS = 0.000001;
 
 export class PlayerControls extends THREE.EventDispatcher {
+  private readonly keybindingManager;
+
   public readonly moveState = {
     up: 0,
     down: 0,
@@ -28,12 +32,6 @@ export class PlayerControls extends THREE.EventDispatcher {
 
   private readonly lastCameraPosition = new THREE.Vector3();
 
-  private readonly _keydown = this.keydown.bind(this);
-  private readonly _keyup = this.keyup.bind(this);
-  private readonly _mousedown = this.mousedown.bind(this);
-  private readonly _mouseup = this.mouseup.bind(this);
-  private readonly _mousemove = this.mousemove.bind(this);
-
   public constructor(
     private readonly camera: THREE.Camera,
     private readonly domElement: HTMLCanvasElement,
@@ -41,111 +39,142 @@ export class PlayerControls extends THREE.EventDispatcher {
   ) {
     super();
 
-    this.domElement.addEventListener('mousedown', this._mousedown, false);
-    this.domElement.addEventListener('mouseup', this._mouseup, false);
-    this.domElement.addEventListener('mousemove', this._mousemove, false);
-    window.addEventListener('keydown', this._keydown, false);
-    window.addEventListener('keyup', this._keyup, false);
+    this.keybindingManager = new KeybindingManager({
+      domElement: this.domElement,
+    });
+
+    this.keybindingManager.register(
+      new KeybindAction({
+        action: 'player:moveup',
+        label: 'Move Up',
+        type: 'keyboard',
+        key: 'w',
+        state: 'pressed',
+      }),
+    );
+
+    this.keybindingManager.addEventListener('player:moveup', (event) => {
+      this.moveState.up = event.value;
+      this.updateMovementVector();
+    });
+
+    this.keybindingManager.register(
+      new KeybindAction({
+        action: 'player:moveleft',
+        label: 'Move Left',
+        type: 'keyboard',
+        key: 'a',
+        state: 'pressed',
+      }),
+    );
+
+    this.keybindingManager.addEventListener('player:moveleft', (event) => {
+      this.moveState.left = event.value;
+      this.updateMovementVector();
+    });
+
+    this.keybindingManager.register(
+      new KeybindAction({
+        action: 'player:movedown',
+        label: 'Move Down',
+        type: 'keyboard',
+        key: 's',
+        state: 'pressed',
+      }),
+    );
+
+    this.keybindingManager.addEventListener('player:movedown', (event) => {
+      this.moveState.down = event.value;
+      this.updateMovementVector();
+    });
+
+    this.keybindingManager.register(
+      new KeybindAction({
+        action: 'player:moveright',
+        label: 'Move Right',
+        type: 'keyboard',
+        key: 'd',
+        state: 'pressed',
+      }),
+    );
+
+    this.keybindingManager.addEventListener('player:moveright', (event) => {
+      this.moveState.right = event.value;
+      this.updateMovementVector();
+    });
+
+    this.keybindingManager.register(
+      new KeybindAction({
+        action: 'game:pause',
+        label: 'Pause Game',
+        type: 'keyboard',
+        key: 'p',
+        state: 'toggle',
+      }),
+    );
+
+    this.keybindingManager.addEventListener('game:pause', (event) => {
+      this.gameState.pause = event.value;
+    });
+
+    this.keybindingManager.register(
+      new KeybindAction({
+        action: 'weapon:reload',
+        label: 'Reload Weapon',
+        type: 'keyboard',
+        key: 'r',
+        state: 'down',
+      }),
+    );
+
+    this.keybindingManager.addEventListener('weapon:reload', (event) => {
+      // TODO @Shinigami92 2022-09-29: This needs to be moved out of the PlayerControls
+      if (
+        this.gameState.reload === 0 &&
+        this.player.weapon.ammunition < this.player.weapon.maxAmmunition
+      ) {
+        this.gameState.reload = event.value;
+
+        this.player.weapon.reload();
+
+        // TODO @Shinigami92 2022-09-29: Find an event-based solution instead of using setTimeout
+        setTimeout(() => {
+          event.reset();
+          this.gameState.reload = 0;
+        }, this.player.weapon.reloadSpeed * 1000);
+      }
+    });
+
+    this.keybindingManager.register(
+      new KeybindAction({
+        action: 'shoot:primary',
+        label: 'Shoot Primary',
+        type: 'mouse',
+        key: 'left',
+        state: 'pressed',
+      }),
+    );
+
+    this.keybindingManager.addEventListener('shoot:primary', (event) => {
+      this.mouseState.primary = event.value;
+    });
+
+    this.keybindingManager.register(
+      new KeybindAction({
+        action: 'player:crosshair',
+        label: 'Move Crosshair',
+        type: 'mouse',
+        key: 'move',
+        state: 'move',
+      }),
+    );
+
+    this.keybindingManager.addEventListener('player:crosshair', (event) => {
+      this.mouseHudCoordinates.x = event.value.x;
+      this.mouseHudCoordinates.y = event.value.y;
+    });
 
     this.updateMovementVector();
-  }
-
-  private keydown(event: KeyboardEvent): void {
-    switch (event.key) {
-      case 'w':
-        this.moveState.up = 1;
-        break;
-
-      case 'a':
-        this.moveState.left = 1;
-        break;
-
-      case 's':
-        this.moveState.down = 1;
-        break;
-
-      case 'd':
-        this.moveState.right = 1;
-        break;
-
-      case 'p':
-        if (this.gameState.pause === 0) {
-          this.gameState.pause = 1;
-        } else {
-          this.gameState.pause = 0;
-        }
-        break;
-
-      case 'r':
-        // TODO @Shinigami92 2022-09-29: This needs to be moved out of the PlayerControls
-        if (
-          this.gameState.reload === 0 &&
-          this.player.weapon.ammunition < this.player.weapon.maxAmmunition
-        ) {
-          this.gameState.reload = 1;
-
-          this.player.weapon.reload();
-
-          // TODO @Shinigami92 2022-09-29: Find an event-based solution instead of using setTimeout
-          setTimeout(() => {
-            this.gameState.reload = 0;
-          }, this.player.weapon.reloadSpeed);
-        }
-        break;
-    }
-
-    this.updateMovementVector();
-  }
-
-  private keyup(event: KeyboardEvent): void {
-    switch (event.key) {
-      case 'w':
-        this.moveState.up = 0;
-        break;
-
-      case 'a':
-        this.moveState.left = 0;
-        break;
-
-      case 's':
-        this.moveState.down = 0;
-        break;
-
-      case 'd':
-        this.moveState.right = 0;
-        break;
-    }
-
-    this.updateMovementVector();
-  }
-
-  private mousedown(event: MouseEvent): void {
-    switch (event.button) {
-      case 0:
-        this.mouseState.primary = 1;
-        break;
-
-      case 2:
-        this.mouseState.secondary = 1;
-        break;
-    }
-  }
-
-  private mouseup(event: MouseEvent): void {
-    switch (event.button) {
-      case 0:
-        this.mouseState.primary = 0;
-        break;
-
-      case 2:
-        this.mouseState.secondary = 0;
-        break;
-    }
-  }
-
-  private mousemove(event: MouseEvent): void {
-    this.mouseHudCoordinates.x = (event.clientX / window.innerWidth) * 2 - 1;
-    this.mouseHudCoordinates.y = -(event.clientY / window.innerHeight) * 2 + 1;
   }
 
   public update(delta: number): void {
@@ -174,13 +203,5 @@ export class PlayerControls extends THREE.EventDispatcher {
     this.moveVector.y = -this.moveState.down + this.moveState.up;
     this.moveVector.z = 0;
     this.moveVector.normalize();
-  }
-
-  public dispose(): void {
-    this.domElement.removeEventListener('mousedown', this._mousedown, false);
-    this.domElement.removeEventListener('mouseup', this._mouseup, false);
-    this.domElement.removeEventListener('mousemove', this._mousemove, false);
-    window.removeEventListener('keydown', this._keydown, false);
-    window.removeEventListener('keyup', this._keyup, false);
   }
 }
