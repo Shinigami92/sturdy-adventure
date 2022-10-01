@@ -5,7 +5,8 @@ import Stats from 'three/examples/jsm/libs/stats.module';
 
 import { isBullet } from '@/entities/bullets/bullet';
 import { Enemy, isEnemy } from '@/entities/enemies/enemy';
-import { Player } from '@/entities/player';
+import { isMineral, Mineral } from '@/entities/minerals/mineral';
+import { isPlayer, Player } from '@/entities/player';
 import { Revolver } from '@/entities/weapons/revolver';
 import { Hud } from '@/hud';
 import { Score } from '@/score';
@@ -113,9 +114,23 @@ function resetGame(): void {
   score.reset();
   player.reset();
 
+  // Spawn minerals
+  for (let i = 0; i < 16; i++) {
+    const mineral = new Mineral();
+    mineral.position.set(
+      Math.ceil(Math.random() * 128) * 2 - 128,
+      Math.ceil(Math.random() * 128) * 2 - 128,
+      0,
+    );
+    scene.add(mineral);
+  }
+
   enemySpawnTimer = 1.2;
   enemyMovementSpeedMultiplier = 1;
 }
+
+// Initialize game with default state
+resetGame();
 
 function animate(): void {
   requestAnimationFrame(animate);
@@ -177,6 +192,7 @@ function animate(): void {
     // ################################
     // TODO @Shinigami92 2022-09-21: Filtering the enemies in each render cycle is a performance issue
     const enemies = scene.children.filter(isEnemy);
+    const minerals = scene.children.filter(isMineral);
 
     // TODO @Shinigami92 2022-09-21: Maybe go back to normal loops so all bullets and enemies can be updated/moved before collisions are detected
     const disposeObjects: Disposable[] = [];
@@ -228,6 +244,19 @@ function animate(): void {
           object.update(delta);
         } else {
           object.update(delta);
+        }
+      }
+
+      if (isPlayer(object)) {
+        for (const mineral of minerals) {
+          if (collision(object, mineral)) {
+            // push player back
+            const direction = new THREE.Vector3();
+            direction.subVectors(mineral.position, object.position);
+            direction.normalize();
+            direction.multiplyScalar(0.1);
+            object.position.sub(direction);
+          }
         }
       }
 
