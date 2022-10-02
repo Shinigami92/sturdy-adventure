@@ -37,7 +37,7 @@ export class Revolver extends Weapon {
       this.ammunition -= 1;
 
       if (this.ammunition === 0) {
-        this.reloadTimer = this.reloadSpeed;
+        this.reload();
       }
     }
   }

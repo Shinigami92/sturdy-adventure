@@ -65,17 +65,15 @@ export class KeybindingManager extends THREE.EventDispatcher {
           this.keyboardInputManager.register({
             key: keybind.key,
             keyup: () => {
-              if (keybind.value === 0) {
-                keybind.value = 1;
-                this.dispatchEvent({
-                  type: keybind.action,
-                  target: this,
-                  value: keybind.value,
-                  reset: () => {
-                    keybind.value = 0;
-                  },
-                });
-              }
+              keybind.value = 1;
+              this.dispatchEvent({
+                type: keybind.action,
+                target: this,
+                value: keybind.value,
+                reset: () => {
+                  keybind.value = 0;
+                },
+              });
             },
           });
           break;
@@ -84,17 +82,15 @@ export class KeybindingManager extends THREE.EventDispatcher {
           this.keyboardInputManager.register({
             key: keybind.key,
             keydown: () => {
-              if (keybind.value === 0) {
-                keybind.value = 1;
-                this.dispatchEvent({
-                  type: keybind.action,
-                  target: this,
-                  value: keybind.value,
-                  reset: () => {
-                    keybind.value = 0;
-                  },
-                });
-              }
+              keybind.value = 1;
+              this.dispatchEvent({
+                type: keybind.action,
+                target: this,
+                value: keybind.value,
+                reset: () => {
+                  keybind.value = 0;
+                },
+              });
             },
           });
           break;
