@@ -52,6 +52,10 @@ export abstract class Weapon
     this.reloadSpeed = reloadSpeed;
   }
 
+  public get isReloading(): boolean {
+    return this.reloadTimer !== Number.POSITIVE_INFINITY;
+  }
+
   public abstract shoot(
     scene: THREE.Scene,
     shootFrom: THREE.Vector3,
@@ -59,7 +63,7 @@ export abstract class Weapon
   ): void;
 
   public reload(): void {
-    if (this.ammunition === this.maxAmmunition) {
+    if (this.isReloading) {
       return;
     }
 

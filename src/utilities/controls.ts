@@ -129,11 +129,7 @@ export class PlayerControls extends THREE.EventDispatcher {
 
     this.keybindingManager.addEventListener('weapon:reload', (event) => {
       // TODO @Shinigami92 2022-09-29: This needs to be moved out of the PlayerControls
-      if (
-        this.gameState.reload === 0 &&
-        this.player.weapon.ammunition < this.player.weapon.maxAmmunition &&
-        this.player.weapon.reloadTimer === Number.POSITIVE_INFINITY
-      ) {
+      if (this.gameState.reload === 0 && !this.player.weapon.isReloading) {
         this.gameState.reload = event.value;
 
         this.player.weapon.reload();
