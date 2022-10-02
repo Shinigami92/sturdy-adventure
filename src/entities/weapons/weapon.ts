@@ -38,7 +38,7 @@ export abstract class Weapon
 
   public ammunition: number;
 
-  public reloadTimer = 0;
+  public reloadTimer = Number.POSITIVE_INFINITY;
 
   public reloadSpeed: number;
 
@@ -52,6 +52,10 @@ export abstract class Weapon
     this.reloadSpeed = reloadSpeed;
   }
 
+  public get isReloading(): boolean {
+    return this.reloadTimer !== Number.POSITIVE_INFINITY;
+  }
+
   public abstract shoot(
     scene: THREE.Scene,
     shootFrom: THREE.Vector3,
@@ -59,12 +63,10 @@ export abstract class Weapon
   ): void;
 
   public reload(): void {
-    if (this.ammunition === this.maxAmmunition) {
+    if (this.isReloading) {
       return;
     }
 
-    // TODO @Shinigami92 2022-09-29: It would be nice not to have to set ammunition to 0
-    this.ammunition = 0;
     this.reloadTimer = this.reloadSpeed;
   }
 
@@ -72,8 +74,11 @@ export abstract class Weapon
     this.shootTimer = Math.max(0, this.shootTimer - delta);
     this.reloadTimer = Math.max(0, this.reloadTimer - delta);
 
-    if (this.reloadTimer === 0 && this.ammunition === 0) {
+    if (this.reloadTimer === 0) {
       this.ammunition = this.maxAmmunition;
+      this.reloadTimer = Number.POSITIVE_INFINITY;
+
+      this.dispatchEvent({ type: 'reloaded' });
     }
   }
 
