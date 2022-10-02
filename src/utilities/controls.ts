@@ -137,11 +137,14 @@ export class PlayerControls extends THREE.EventDispatcher {
 
         this.player.weapon.reload();
 
-        // TODO @Shinigami92 2022-09-29: Find an event-based solution instead of using setTimeout
-        setTimeout(() => {
+        const onReloaded = (): void => {
           event.reset();
           this.gameState.reload = 0;
-        }, this.player.weapon.reloadSpeed * 1000);
+
+          this.player.weapon.removeEventListener('reloaded', onReloaded);
+        };
+
+        this.player.weapon.addEventListener('reloaded', onReloaded);
       }
     });
 

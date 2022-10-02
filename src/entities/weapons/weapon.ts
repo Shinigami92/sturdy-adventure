@@ -73,6 +73,8 @@ export abstract class Weapon
     if (this.reloadTimer === 0) {
       this.ammunition = this.maxAmmunition;
       this.reloadTimer = Number.POSITIVE_INFINITY;
+
+      this.dispatchEvent({ type: 'reloaded' });
     }
   }
 
