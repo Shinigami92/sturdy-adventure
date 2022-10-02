@@ -127,8 +127,9 @@ export class Hud extends THREE.Mesh implements Updatable {
       );
 
       // Reload-Indicator
-      const ammoReloadProgress =
-        this.playerRef.weapon.reloadTimer / this.playerRef.weapon.reloadSpeed;
+      const ammoReloadProgress = Math.min(
+        this.playerRef.weapon.reloadTimer / this.playerRef.weapon.reloadSpeed,
+      );
 
       this.bitmap.beginPath();
       this.bitmap.arc(

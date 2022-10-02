@@ -15,7 +15,10 @@ export class Revolver extends Weapon {
     shootFrom: THREE.Vector3,
     shootAt: THREE.Vector3,
   ): void {
-    if (this.reloadTimer === 0 && this.shootTimer === 0) {
+    if (
+      this.reloadTimer === Number.POSITIVE_INFINITY &&
+      this.shootTimer === 0
+    ) {
       this.shootTimer = this.shootSpeed;
 
       // TODO @Shinigami92 2022-09-19: Spawn the bullet via a helper
