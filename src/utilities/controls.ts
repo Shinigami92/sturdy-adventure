@@ -131,7 +131,8 @@ export class PlayerControls extends THREE.EventDispatcher {
       // TODO @Shinigami92 2022-09-29: This needs to be moved out of the PlayerControls
       if (
         this.gameState.reload === 0 &&
-        this.player.weapon.ammunition < this.player.weapon.maxAmmunition
+        this.player.weapon.ammunition < this.player.weapon.maxAmmunition &&
+        this.player.weapon.reloadTimer === Number.POSITIVE_INFINITY
       ) {
         this.gameState.reload = event.value;
 
