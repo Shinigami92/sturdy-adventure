@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { Weapon } from './weapon';
 
 describe('entities:weapons', () => {
@@ -67,5 +67,27 @@ describe('entities:weapons', () => {
     weapon.shoot(scene, shootFrom, shootAt);
     weapon.update(DELTA_TICK);
     expect(weapon.isReloading).toBe(true);
+  });
+
+  it('should dispatch a reloaded event', () => {
+    const scene = new THREE.Scene();
+
+    const weapon = new WeaponImpl();
+
+    const spyWeaponDispatchEvent = vi.spyOn(weapon, 'dispatchEvent');
+
+    const shootFrom = new THREE.Vector3(0, 0, 0);
+    const shootAt = new THREE.Vector3(1, 0, 0);
+
+    for (let i = 0; i < weapon.maxAmmunition; i++) {
+      weapon.shoot(scene, shootFrom, shootAt);
+      weapon.update(weapon.shootSpeed + DELTA_TICK);
+    }
+
+    expect(weapon.isReloading).toBe(true);
+
+    weapon.update(weapon.reloadSpeed + DELTA_TICK);
+
+    expect(spyWeaponDispatchEvent).toHaveBeenCalledWith({ type: 'reloaded' });
   });
 });
