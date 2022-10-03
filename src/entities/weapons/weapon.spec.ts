@@ -30,8 +30,9 @@ describe('entities:weapons', () => {
   it('should not reload if ammo is full', () => {
     const weapon = new WeaponImpl();
 
-    weapon.reload();
+    const reloadTriggered = weapon.reload();
 
+    expect(reloadTriggered).toBe(false);
     expect(weapon.isReloading).toBe(false);
   });
 
