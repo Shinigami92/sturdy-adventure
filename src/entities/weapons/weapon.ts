@@ -63,6 +63,10 @@ export abstract class Weapon
   ): void;
 
   public reload(): void {
+    if (this.ammunition === this.maxAmmunition) {
+      return;
+    }
+
     if (this.isReloading) {
       return;
     }
