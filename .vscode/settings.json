@@ -1,0 +1,8 @@
+{
+  "cSpell.words": ["keybind", "keybinds", "pnpm", "quadflieg", "unproject"],
+  "eslint.validate": ["javascript", "typescript"],
+  "files.associations": {
+    "*.json5": "jsonc"
+  },
+  "typescript.tsdk": "node_modules/typescript/lib"
+}
