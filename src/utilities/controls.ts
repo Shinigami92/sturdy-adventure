@@ -18,7 +18,6 @@ export class PlayerControls extends THREE.EventDispatcher {
 
   public readonly gameState = {
     pause: 0,
-    reload: 0,
   };
 
   public readonly mouseState = {
@@ -129,14 +128,10 @@ export class PlayerControls extends THREE.EventDispatcher {
 
     this.keybindingManager.addEventListener('weapon:reload', (event) => {
       // TODO @Shinigami92 2022-09-29: This needs to be moved out of the PlayerControls
-      if (this.gameState.reload === 0 && !this.player.weapon.isReloading) {
-        this.gameState.reload = event.value;
-
-        this.player.weapon.reload();
-
+      const reloadTriggered = this.player.weapon.reload();
+      if (reloadTriggered) {
         const onReloaded = (): void => {
           event.reset();
-          this.gameState.reload = 0;
 
           this.player.weapon.removeEventListener('reloaded', onReloaded);
         };

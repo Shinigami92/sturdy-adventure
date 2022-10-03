@@ -62,12 +62,18 @@ export abstract class Weapon
     shootAt: THREE.Vector3,
   ): void;
 
-  public reload(): void {
+  public reload(): boolean {
+    if (this.ammunition === this.maxAmmunition) {
+      return false;
+    }
+
     if (this.isReloading) {
-      return;
+      return false;
     }
 
     this.reloadTimer = this.reloadSpeed;
+
+    return true;
   }
 
   public update(delta: number): void {
