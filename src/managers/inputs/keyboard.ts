@@ -5,9 +5,17 @@ export type EventListenerElement =
   | Pick<typeof window, 'addEventListener' | 'removeEventListener'>;
 
 export interface KeyboardInputManagerOptions {
+  /**
+   * The element to listen to keyboard events on.
+   *
+   * @default window
+   */
   readonly domElement?: EventListenerElement;
 }
 
+/**
+ * The keyboard input manager.
+ */
 export class KeyboardInputManager implements Disposable {
   public readonly isDisposable = true;
 
@@ -19,6 +27,9 @@ export class KeyboardInputManager implements Disposable {
     keyup?: () => void;
   }> = [];
 
+  /**
+   * The element to listen to keyboard events on.
+   */
   private readonly container: EventListenerElement;
 
   private readonly _keydown = this.keydown.bind(this);
@@ -51,6 +62,11 @@ export class KeyboardInputManager implements Disposable {
     }
   }
 
+  /**
+   * Registers a key to listen to.
+   *
+   * @param options The options to register the key with.
+   */
   public register(options: {
     key: string;
     keydown?: () => void;

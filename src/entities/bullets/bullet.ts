@@ -5,41 +5,83 @@ import type { Updatable } from '@/utilities/updatable';
 
 export interface BulletOptions {
   /**
+   * The bullet's speed.
+   *
+   * Measured in units per second.
+   *
    * @default 15
    */
   speed?: number;
 
   /**
+   * The bullet's lifetime.
+   *
+   * Measured in milliseconds.
+   *
    * @default 1
    */
   lifetime?: number;
 
   /**
+   * The bullet's damage dealt by hitting an enemy.
+   *
    * @default 1
    */
   damage?: number;
 
   /**
+   * How many times the bullet can pierce through enemies.
+   *
    * @default 1
    */
   maxHits?: number;
 }
 
+/**
+ * The bullet entity.
+ */
 export class Bullet extends THREE.Mesh implements Updatable, Disposable {
   public readonly isUpdatable = true;
   public readonly isDisposable = true;
+
+  /**
+   * Always `true`.
+   *
+   * This is used to check if an object implements {@link Bullet}.
+   *
+   * @see {@link isBullet}
+   */
   public readonly isBullet = true;
 
   public markForDisposal = false;
 
+  /**
+   * The bullet's speed.
+   *
+   * Measured in units per second.
+   */
   public speed: number;
 
+  /**
+   * The bullet's lifetime.
+   *
+   * Measured in milliseconds.
+   */
   public lifetime: number;
 
+  /**
+   * The bullet's damage dealt by hitting an enemy.
+   */
   public damage: number;
 
+  /**
+   * How many times the bullet can pierce through enemies.
+   */
   public maxHits: number;
 
+  /**
+   * The number of times the bullet has hit an enemy.
+   */
   public hits: number;
 
   public constructor(options: BulletOptions = {}) {
@@ -86,6 +128,12 @@ export class Bullet extends THREE.Mesh implements Updatable, Disposable {
   }
 }
 
+/**
+ * Checks if an object implements {@link Bullet}.
+ *
+ * @param value The value to check.
+ * @returns `true` if the value implements {@link Bullet}, `false` otherwise.
+ */
 export function isBullet(value: any): value is Bullet {
   return value?.isBullet === true;
 }

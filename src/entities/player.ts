@@ -6,31 +6,57 @@ import type { Resettable } from '@/utilities/resettable';
 
 export interface PlayerOptions {
   /**
+   * The player's default movement speed.
+   *
+   * Measures in units per second.
+   *
    * @default 5
    */
   movementSpeed?: number;
 
   /**
-   *
+   * The initial weapon the player should hold.
    */
   weapon: Weapon;
 
   /**
+   * The player's initial health.
+   *
    * @default 3
    */
   maxHealth?: number;
 }
 
+/**
+ * The player entity.
+ *
+ * Controlled by the user with keyboard and mouse inputs.
+ */
 export class Player extends THREE.Mesh implements Resettable {
   public readonly isResettable = true;
+
+  /**
+   * Always `true`.
+   *
+   * @see {@link isPlayer}
+   */
   public readonly isPlayer = true;
 
+  /**
+   * The player's movement speed.
+   */
   public movementSpeed: number;
 
   #weapon!: Weapon;
 
+  /**
+   * The player's max health.
+   */
   public maxHealth: number;
 
+  /**
+   * The player's current health.
+   */
   public health: number;
 
   public constructor(options: PlayerOptions) {
@@ -50,10 +76,18 @@ export class Player extends THREE.Mesh implements Resettable {
     this.weapon = weapon;
   }
 
+  /**
+   * The current weapon the player is holding.
+   */
   public get weapon(): Weapon {
     return this.#weapon;
   }
 
+  /**
+   * Set the current weapon the player should hold.
+   *
+   * _will automatically dispose the previous weapon the player was holding_
+   */
   public set weapon(weapon) {
     this.weapon?.dispose();
 
@@ -69,6 +103,12 @@ export class Player extends THREE.Mesh implements Resettable {
   }
 }
 
+/**
+ * Check if an object is {@link Player}.
+ *
+ * @param value The value to check.
+ * @returns `true` if the value is {@link Player}, `false` otherwise.
+ */
 export function isPlayer(value: any): value is Player {
   return value?.isPlayer === true;
 }

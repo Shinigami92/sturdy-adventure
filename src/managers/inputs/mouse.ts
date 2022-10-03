@@ -14,9 +14,17 @@ export type EventListenerElement =
     >;
 
 export interface MouseInputManagerOptions {
+  /**
+   * The element to listen to mouse events on.
+   *
+   * @default window
+   */
   readonly domElement?: EventListenerElement;
 }
 
+/**
+ * The mouse input manager.
+ */
 export class MouseInputManager implements Disposable {
   public readonly isDisposable = true;
 
@@ -29,6 +37,9 @@ export class MouseInputManager implements Disposable {
     mousemove?: ({ x, y }: { x: number; y: number }) => void;
   }> = [];
 
+  /**
+   * The element to listen to mouse events on.
+   */
   private readonly container: EventListenerElement;
 
   private readonly _mousedown = this.mousedown.bind(this);
@@ -45,6 +56,14 @@ export class MouseInputManager implements Disposable {
     this.container.addEventListener('mousemove', this._mousemove, false);
   }
 
+  /**
+   * Get the button number for the requested mouse key.
+   *
+   * @param key The `'left'` or `'right'` mouse button.
+   * @returns The mouse button number.
+   *
+   * @throws {Error} If the requested key is not `'left'` or `'right'`.
+   */
   public getButton(key: string): number {
     switch (key) {
       case 'left':
@@ -98,6 +117,11 @@ export class MouseInputManager implements Disposable {
     }
   }
 
+  /**
+   * Register a mouse button to listen to.
+   *
+   * @param options The options to register the mouse button with.
+   */
   public register(options: {
     button: number;
     mousedown?: () => void;

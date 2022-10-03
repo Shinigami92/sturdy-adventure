@@ -3,7 +3,17 @@ import type * as THREE from 'three';
 import { Bullet } from '@/entities/bullets/bullet';
 import { Weapon } from '@/entities/weapons/weapon';
 
+/**
+ * The revolver entity.
+ */
 export class Revolver extends Weapon {
+  /**
+   * Always `true`.
+   *
+   * This is used to check if an object implements {@link Revolver}.
+   *
+   * @see {@link isRevolver}
+   */
   public readonly isRevolver = true;
 
   public constructor() {
@@ -40,6 +50,12 @@ export class Revolver extends Weapon {
   }
 }
 
+/**
+ * Check if an object implements {@link Revolver}.
+ *
+ * @param value The object to check.
+ * @returns `true` if the object implements {@link Revolver}, `false` otherwise.
+ */
 export function isRevolver(value: any): value is Revolver {
   return value?.isRevolver === true;
 }

@@ -5,16 +5,24 @@ import type { Updatable } from '@/utilities/updatable';
 
 export interface EnemyOptions {
   /**
+   * The enemy's initial health.
+   *
    * @default 1
    */
   health?: number;
 
   /**
+   * The enemy's initial movement speed.
+   *
+   * Measured in units per second.
+   *
    * @default 4
    */
   movementSpeed?: number;
 
   /**
+   * The enemy's initial damage dealt by hitting the player.
+   *
    * @default 1
    */
   damage?: number;
@@ -23,16 +31,36 @@ export interface EnemyOptions {
 export class Enemy extends THREE.Mesh implements Updatable, Disposable {
   public readonly isUpdatable = true;
   public readonly isDisposable = true;
+
+  /**
+   * Always `true`.
+   *
+   * This is used to check if an object implements {@link Enemy}.
+   *
+   * @see {@link isEnemy}
+   */
   public readonly isEnemy = true;
 
   public markForDisposal = false;
 
+  /**
+   * The enemy's current target to move to.
+   */
   public target = new THREE.Vector3();
 
+  /**
+   * The enemy's current health.
+   */
   public health: number;
 
+  /**
+   * The enemy's movement speed.
+   */
   public movementSpeed: number;
 
+  /**
+   * The enemy's damage dealt by hitting the player.
+   */
   public damage: number;
 
   public constructor(options: EnemyOptions = {}) {
@@ -76,6 +104,12 @@ export class Enemy extends THREE.Mesh implements Updatable, Disposable {
   }
 }
 
+/**
+ * Check if an object implements {@link Enemy}.
+ *
+ * @param value The object to check.
+ * @returns `true` if the object implements {@link Enemy}, `false` otherwise.
+ */
 export function isEnemy(value: any): value is Enemy {
   return value?.isEnemy === true;
 }

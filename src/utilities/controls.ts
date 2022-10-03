@@ -9,6 +9,11 @@ const EPS = 0.000001;
 export class PlayerControls extends THREE.EventDispatcher {
   private readonly keybindingManager;
 
+  /**
+   * The current state of the move input by the user.
+   *
+   * Will be used to calculate the movement vector of the player.
+   */
   public readonly moveState = {
     up: 0,
     down: 0,
@@ -16,19 +21,37 @@ export class PlayerControls extends THREE.EventDispatcher {
     right: 0,
   };
 
+  /**
+   * The current state of the game.
+   */
   public readonly gameState = {
     pause: 0,
   };
 
+  /**
+   * The current state of the mouse input by the user.
+   *
+   * Will be used to calculate whether the player is shooting or not.
+   */
   public readonly mouseState = {
     primary: 0,
-    secondary: 0,
   };
 
+  /**
+   * The current mouse position on the HUD.
+   */
   public readonly mouseHudCoordinates = new THREE.Vector2();
 
+  /**
+   * The current movement vector of the player.
+   */
   public readonly moveVector = new THREE.Vector3(0, 0, 0);
 
+  /**
+   * The last position of the camera.
+   *
+   * Will be used to check if the camera has moved.
+   */
   private readonly lastCameraPosition = new THREE.Vector3();
 
   public constructor(

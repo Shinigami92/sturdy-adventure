@@ -5,9 +5,17 @@ import { MouseInputManager } from '@/managers/inputs/mouse';
 import type { KeybindAction } from '@/managers/keybinds/action';
 
 export interface KeybindingManagerOptions {
+  /**
+   * The element to listen to input events on.
+   *
+   * @default window
+   */
   readonly domElement?: HTMLElement | typeof window;
 }
 
+/**
+ * The keybinding manager.
+ */
 export class KeybindingManager extends THREE.EventDispatcher {
   private readonly keybinds: KeybindAction[] = [];
 
@@ -28,6 +36,11 @@ export class KeybindingManager extends THREE.EventDispatcher {
     });
   }
 
+  /**
+   * Register a keybind.
+   *
+   * @param keybind The keybind to register.
+   */
   public register(keybind: KeybindAction): void {
     this.keybinds.push(keybind);
 
