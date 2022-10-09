@@ -8,9 +8,9 @@ export interface MinerOptions {
   /**
    * The miner's mining speed.
    *
-   * Measured in how long to wait between mining the next mineral in milliseconds.
+   * Measured in how long to wait between mining the next mineral in seconds.
    *
-   * @default 3000
+   * @default 3
    */
   miningSpeed?: number;
 
@@ -56,14 +56,14 @@ export class Miner extends THREE.Mesh implements Updatable, Disposable {
   /**
    * The cooldown timer for mining.
    *
-   * Measured in milliseconds.
+   * Measured in seconds.
    */
   public miningTimer = 0;
 
   /**
    * The miner's mining speed.
    *
-   * Measured in how long to wait between mining the next mineral in milliseconds.
+   * Measured in how long to wait between mining the next mineral in seconds.
    */
   public miningSpeed: number;
 
@@ -92,12 +92,7 @@ export class Miner extends THREE.Mesh implements Updatable, Disposable {
       new THREE.MeshBasicMaterial({ color }),
     );
 
-    const {
-      miningSpeed = 3000,
-      maxAmount = 20,
-      amount = 0,
-      placedOn,
-    } = options;
+    const { miningSpeed = 3, maxAmount = 20, amount = 0, placedOn } = options;
     this.miningSpeed = miningSpeed;
     this.maxAmount = maxAmount;
     this.amount = amount;

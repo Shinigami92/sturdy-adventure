@@ -16,7 +16,7 @@ export interface BulletOptions {
   /**
    * The bullet's lifetime.
    *
-   * Measured in milliseconds.
+   * Measured in seconds.
    *
    * @default 1
    */
@@ -65,7 +65,7 @@ export class Bullet extends THREE.Mesh implements Updatable, Disposable {
   /**
    * The bullet's lifetime.
    *
-   * Measured in milliseconds.
+   * Measured in seconds.
    */
   public lifetime: number;
 

@@ -4,11 +4,12 @@ import * as THREE from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module';
 
 import { isBullet } from '@/entities/bullets/bullet';
-import { Enemy, isEnemy } from '@/entities/enemies/enemy';
+import { isEnemy } from '@/entities/enemies/enemy';
 import { isMineral, Mineral } from '@/entities/minerals/mineral';
 import { isPlayer, Player } from '@/entities/player';
 import { Revolver } from '@/entities/weapons/revolver';
 import { Hud } from '@/hud';
+import { EnemyManager } from '@/managers/enemy';
 import { Score } from '@/score';
 import { collision } from '@/utilities/collision';
 import { PlayerControls } from '@/utilities/controls';
@@ -100,11 +101,11 @@ window.onresize = () => {
 const clock = new THREE.Clock();
 let delta = 0;
 
-// TODO @Shinigami92 2022-09-21: Maybe build an EnemySpawner
-let enemySpawnTimer = 1.2;
-let enemyMovementSpeedMultiplier = 1;
+const enemyManager = new EnemyManager(scene);
 
 function resetGame(): void {
+  enemyManager.reset();
+
   scene.traverse((object) => {
     if (isDisposable(object)) {
       object.markForDisposal = true;
@@ -124,9 +125,6 @@ function resetGame(): void {
     );
     scene.add(mineral);
   }
-
-  enemySpawnTimer = 1.2;
-  enemyMovementSpeedMultiplier = 1;
 }
 
 // Initialize game with default state
@@ -164,24 +162,7 @@ function animate(): void {
     // ###################
     // # Perform actions #
     // ###################
-    enemySpawnTimer = Math.max(0, enemySpawnTimer - delta);
-    enemyMovementSpeedMultiplier += delta * 0.003;
-
-    if (enemySpawnTimer === 0) {
-      enemySpawnTimer = 1.2;
-
-      const enemy = new Enemy({
-        movementSpeed: 4 * enemyMovementSpeedMultiplier,
-      });
-      const angle = Math.random() * Math.PI * 2;
-      const distance = 20;
-      enemy.position.set(
-        player.position.x + Math.sin(angle) * distance,
-        player.position.y + Math.cos(angle) * distance,
-        0,
-      );
-      scene.add(enemy);
-    }
+    enemyManager.update(delta);
 
     if (controls.mouseState.primary > 0) {
       player.weapon.shoot(scene, player.position, crosshair.position);
@@ -191,7 +172,7 @@ function animate(): void {
     // # Update all updatable objects #
     // ################################
     // TODO @Shinigami92 2022-09-21: Filtering the enemies in each render cycle is a performance issue
-    const enemies = scene.children.filter(isEnemy);
+    const enemies = enemyManager.enemies;
     const minerals = scene.children.filter(isMineral);
 
     // TODO @Shinigami92 2022-09-21: Maybe go back to normal loops so all bullets and enemies can be updated/moved before collisions are detected

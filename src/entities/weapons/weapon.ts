@@ -7,7 +7,7 @@ export interface WeaponOptions {
   /**
    * The weapon's shoot speed.
    *
-   * Measured in how long to wait between shots in milliseconds.
+   * Measured in how long to wait between shots in seconds.
    */
   shootSpeed: number;
 
@@ -19,7 +19,7 @@ export interface WeaponOptions {
   /**
    * The weapon's reload speed.
    *
-   * Measured in how long to wait between reloads in milliseconds.
+   * Measured in how long to wait between reloads in seconds.
    */
   reloadSpeed: number;
 }
@@ -48,14 +48,14 @@ export abstract class Weapon
   /**
    * The cooldown timer for shooting.
    *
-   * Measured in milliseconds.
+   * Measured in seconds.
    */
   public shootTimer = 0;
 
   /**
    * The weapon's shoot speed.
    *
-   * Measured in how long to wait between shots in milliseconds.
+   * Measured in how long to wait between shots in seconds.
    */
   public shootSpeed: number;
 
@@ -72,7 +72,7 @@ export abstract class Weapon
   /**
    * The cooldown timer for reloading.
    *
-   * Measured in milliseconds.
+   * Measured in seconds.
    *
    * If the weapon is not reloading, this is set to `Number.POSITIVE_INFINITY`.
    *
@@ -83,7 +83,7 @@ export abstract class Weapon
   /**
    * The weapon's reload speed.
    *
-   * Measured in how long to wait between reloads in milliseconds.
+   * Measured in how long to wait between reloads in seconds.
    */
   public reloadSpeed: number;
 

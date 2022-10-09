@@ -1,9 +1,12 @@
 import * as THREE from 'three';
 
+import type { EnemyManager } from '@/managers/enemy';
 import type { Disposable } from '@/utilities/disposable';
 import type { Updatable } from '@/utilities/updatable';
 
 export interface EnemyOptions {
+  readonly manager: EnemyManager;
+
   /**
    * The enemy's initial health.
    *
@@ -43,6 +46,8 @@ export class Enemy extends THREE.Mesh implements Updatable, Disposable {
 
   public markForDisposal = false;
 
+  private readonly manager: EnemyManager;
+
   /**
    * The enemy's current target to move to.
    */
@@ -63,7 +68,7 @@ export class Enemy extends THREE.Mesh implements Updatable, Disposable {
    */
   public damage: number;
 
-  public constructor(options: EnemyOptions = {}) {
+  public constructor(options: EnemyOptions) {
     const color = new THREE.Color(0xffff00);
     color.convertSRGBToLinear();
     super(
@@ -71,7 +76,8 @@ export class Enemy extends THREE.Mesh implements Updatable, Disposable {
       new THREE.MeshBasicMaterial({ color }),
     );
 
-    const { health = 1, movementSpeed = 4, damage = 1 } = options;
+    const { manager, health = 1, movementSpeed = 4, damage = 1 } = options;
+    this.manager = manager;
     this.health = health;
     this.movementSpeed = movementSpeed;
     this.damage = damage;
@@ -79,7 +85,7 @@ export class Enemy extends THREE.Mesh implements Updatable, Disposable {
 
   public update(delta: number): void {
     if (this.health <= 0) {
-      this.markForDisposal = true;
+      this.manager.despawn(this);
       return;
     }
 
@@ -92,6 +98,8 @@ export class Enemy extends THREE.Mesh implements Updatable, Disposable {
   }
 
   public dispose(): void {
+    this.manager.despawn(this);
+
     this.geometry.dispose();
 
     if (Array.isArray(this.material)) {

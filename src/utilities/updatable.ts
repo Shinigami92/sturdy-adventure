@@ -14,7 +14,7 @@ export interface Updatable {
   /**
    * Updates the object.
    *
-   * @param delta The time elapsed since the last update, in milliseconds.
+   * @param delta The time elapsed since the last update, in seconds.
    */
   update(delta: number): void;
 }
