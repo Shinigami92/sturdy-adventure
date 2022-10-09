@@ -99,12 +99,33 @@ export class Miner extends THREE.Mesh implements Updatable, Disposable {
     this.placedOn = placedOn;
   }
 
-  public update(delta: number): void {
-    this.miningTimer += delta;
+  /**
+   * Collect the miner's minerals.
+   *
+   * @param mineralCollectRate The amount of minerals to collect.
+   * @returns The amount of minerals collected.
+   */
+  public collect(mineralCollectRate: number): number {
+    const amount = Math.min(this.amount, mineralCollectRate);
 
-    if (this.miningTimer >= this.miningSpeed) {
-      this.miningTimer = 0;
+    if (amount <= 0) {
+      return 0;
+    }
+
+    this.amount -= amount;
+    return amount;
+  }
+
+  public update(delta: number): void {
+    if (this.amount >= this.maxAmount) {
+      return;
+    }
+
+    this.miningTimer = Math.max(0, this.miningTimer - delta);
+
+    if (this.miningTimer === 0) {
       this.amount += 1;
+      this.miningTimer = this.miningSpeed;
     }
   }
 

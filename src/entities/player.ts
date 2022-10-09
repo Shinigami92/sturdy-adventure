@@ -1,11 +1,12 @@
 import * as THREE from 'three';
 
-import { Miner } from '@/entities/minerals/miner';
+import { isMiner, Miner } from '@/entities/minerals/miner';
 import type { Mineral } from '@/entities/minerals/mineral';
 import { isMineral } from '@/entities/minerals/mineral';
 import { Revolver } from '@/entities/weapons/revolver';
 import type { Weapon } from '@/entities/weapons/weapon';
 import type { Resettable } from '@/utilities/resettable';
+import type { Updatable } from '@/utilities/updatable';
 
 export interface PlayerOptions {
   /**
@@ -35,6 +36,24 @@ export interface PlayerOptions {
    * @default 2
    */
   maxMiners?: number;
+
+  /**
+   * The player's initial mineral collect speed.
+   *
+   * Measured in how long to wait between collecting minerals in seconds.
+   *
+   * @default 0.5
+   */
+  mineralCollectSpeed?: number;
+
+  /**
+   * The player's initial mineral collect rate.
+   *
+   * Measured in how many minerals to collect per collect.
+   *
+   * @default 1
+   */
+  mineralCollectRate?: number;
 }
 
 /**
@@ -42,7 +61,8 @@ export interface PlayerOptions {
  *
  * Controlled by the user with keyboard and mouse inputs.
  */
-export class Player extends THREE.Mesh implements Resettable {
+export class Player extends THREE.Mesh implements Updatable, Resettable {
+  public readonly isUpdatable = true;
   public readonly isResettable = true;
 
   /**
@@ -79,6 +99,32 @@ export class Player extends THREE.Mesh implements Resettable {
    */
   public miners: number;
 
+  /**
+   * The player's current minerals amount.
+   */
+  public amountOfMinerals = 0;
+
+  /**
+   * The cooldown timer for collect minerals.
+   *
+   * Measured in seconds.
+   */
+  public mineralCollectTimer = 0;
+
+  /**
+   * The player's current minerals collection speed.
+   *
+   * Measures in collect per second.
+   */
+  public mineralCollectSpeed: number;
+
+  /**
+   * The player's current minerals collection rate.
+   *
+   * Measures in how many minerals the player collects per {@link Player.mineralCollectSpeed}.
+   */
+  public mineralCollectRate: number;
+
   public constructor(options: PlayerOptions) {
     const color = new THREE.Color(0xff0000);
     color.convertSRGBToLinear();
@@ -87,7 +133,14 @@ export class Player extends THREE.Mesh implements Resettable {
       new THREE.MeshBasicMaterial({ color }),
     );
 
-    const { movementSpeed = 5, weapon, maxHealth = 3, maxMiners = 2 } = options;
+    const {
+      movementSpeed = 5,
+      weapon,
+      maxHealth = 3,
+      maxMiners = 2,
+      mineralCollectSpeed = 0.5,
+      mineralCollectRate = 1,
+    } = options;
     this.movementSpeed = movementSpeed;
 
     this.maxHealth = maxHealth;
@@ -95,6 +148,9 @@ export class Player extends THREE.Mesh implements Resettable {
 
     this.maxMiners = maxMiners;
     this.miners = maxMiners;
+
+    this.mineralCollectSpeed = mineralCollectSpeed;
+    this.mineralCollectRate = mineralCollectRate;
 
     this.weapon = weapon;
   }
@@ -140,12 +196,12 @@ export class Player extends THREE.Mesh implements Resettable {
     }
 
     if (!closestMineral) {
-      console.warn('No minerals found in scene');
+      // No minerals found in scene
       return false;
     }
 
     if (closestDistance > 2) {
-      console.debug('No minerals close enough to player');
+      // No minerals close enough to player
       return false;
     }
 
@@ -160,6 +216,47 @@ export class Player extends THREE.Mesh implements Resettable {
     console.log('Placed miner on mineral', closestMineral.position);
 
     return true;
+  }
+
+  public update(delta: number): void {
+    this.mineralCollectTimer = Math.max(0, this.mineralCollectTimer - delta);
+
+    if (this.mineralCollectTimer === 0) {
+      // Find the closest mineral to the player that has a miner placed on it.
+      const miners = this.parent?.children.filter(isMiner) ?? [];
+      let closestMiner: Miner | undefined;
+      let closestDistance: number = Number.POSITIVE_INFINITY;
+
+      for (const miner of miners) {
+        const distance = this.position.distanceTo(miner.position);
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestMiner = miner;
+        }
+      }
+
+      if (!closestMiner) {
+        // No miners found in scene
+        return;
+      }
+
+      if (closestDistance > 5) {
+        // No miners close enough to player
+        return;
+      }
+
+      const amount = closestMiner.collect(this.mineralCollectRate);
+
+      console.log(
+        'Collected',
+        amount,
+        'minerals from miner',
+        closestMiner.position,
+      );
+
+      this.amountOfMinerals += amount;
+      this.mineralCollectTimer = this.mineralCollectSpeed;
+    }
   }
 
   public reset(): void {
