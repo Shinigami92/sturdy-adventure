@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 
+import type { Miner } from '@/entities/minerals/miner';
 import type { Disposable } from '@/utilities/disposable';
 
 /**
@@ -17,6 +18,13 @@ export class Mineral extends THREE.Mesh implements Disposable {
   public readonly isMineral = true;
 
   public markForDisposal = false;
+
+  /**
+   * The miner that is mining this mineral.
+   *
+   * If not set, the mineral is not being mined by a miner yet.
+   */
+  public placedMiner?: Miner;
 
   public constructor() {
     const color = new THREE.Color(0x00ff00);

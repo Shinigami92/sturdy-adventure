@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 
+import type { Mineral } from '@/entities/minerals/mineral';
 import type { Disposable } from '@/utilities/disposable';
 import type { Updatable } from '@/utilities/updatable';
 
@@ -28,6 +29,11 @@ export interface MinerOptions {
    * @default 0
    */
   amount?: number;
+
+  /**
+   * The miner's mineral.
+   */
+  placedOn: Mineral;
 }
 
 /**
@@ -73,7 +79,12 @@ export class Miner extends THREE.Mesh implements Updatable, Disposable {
    */
   public amount: number;
 
-  public constructor(options: MinerOptions = {}) {
+  /**
+   * The mineral the miner is mining.
+   */
+  public placedOn: Mineral;
+
+  public constructor(options: MinerOptions) {
     const color = new THREE.Color(0x00fff0);
     color.convertSRGBToLinear();
     super(
@@ -81,10 +92,16 @@ export class Miner extends THREE.Mesh implements Updatable, Disposable {
       new THREE.MeshBasicMaterial({ color }),
     );
 
-    const { miningSpeed = 3000, maxAmount = 20, amount = 0 } = options;
+    const {
+      miningSpeed = 3000,
+      maxAmount = 20,
+      amount = 0,
+      placedOn,
+    } = options;
     this.miningSpeed = miningSpeed;
     this.maxAmount = maxAmount;
     this.amount = amount;
+    this.placedOn = placedOn;
   }
 
   public update(delta: number): void {

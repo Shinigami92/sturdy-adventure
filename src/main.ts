@@ -70,7 +70,7 @@ const player = new Player({ weapon: new Revolver() });
 player.position.set(0, 0, 0);
 scene.add(player);
 
-const controls = new PlayerControls(camera, renderer.domElement, player);
+const controls = new PlayerControls(camera, renderer.domElement, player, scene);
 
 const crosshairColor = new THREE.Color(0x0000ff);
 crosshairColor.convertSRGBToLinear();
