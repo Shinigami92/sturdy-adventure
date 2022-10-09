@@ -58,6 +58,7 @@ export class PlayerControls extends THREE.EventDispatcher {
     private readonly camera: THREE.Camera,
     private readonly domElement: HTMLCanvasElement,
     private readonly player: Player,
+    private readonly scene: THREE.Scene,
   ) {
     super();
 
@@ -123,6 +124,22 @@ export class PlayerControls extends THREE.EventDispatcher {
     this.keybindingManager.addEventListener('player:moveright', (event) => {
       this.moveState.right = event.value;
       this.updateMovementVector();
+    });
+
+    this.keybindingManager.register(
+      new KeybindAction({
+        action: 'player:place-miner',
+        label: 'Place Miner',
+        type: 'keyboard',
+        key: 'e',
+        state: 'down',
+      }),
+    );
+
+    this.keybindingManager.addEventListener('player:place-miner', (event) => {
+      if (event.value === 1) {
+        this.player.placeMiner(this.scene);
+      }
     });
 
     this.keybindingManager.register(
