@@ -168,6 +168,8 @@ function animate(): void {
       player.weapon.shoot(scene, player.position, crosshair.position);
     }
 
+    score.score = player.amountOfMinerals;
+
     // ################################
     // # Update all updatable objects #
     // ################################
@@ -213,7 +215,6 @@ function animate(): void {
             if (collision(enemy, object)) {
               enemy.health -= object.damage;
               object.hits += 1;
-              score.score += 1;
 
               if (object.hits >= object.maxHits) {
                 // No more detections are needed if piercing has reached its limit

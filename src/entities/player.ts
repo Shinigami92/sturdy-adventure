@@ -264,6 +264,9 @@ export class Player extends THREE.Mesh implements Updatable, Resettable {
     this.health = this.maxHealth;
     this.miners = this.maxMiners;
 
+    this.amountOfMinerals = 0;
+    this.mineralCollectTimer = 0;
+
     this.weapon = new Revolver();
   }
 }
