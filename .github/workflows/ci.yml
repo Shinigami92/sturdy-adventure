@@ -12,7 +12,7 @@ jobs:
     name: 'Build&Test: node-18, ubuntu-latest'
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2
@@ -50,7 +50,7 @@ jobs:
     name: 'Lint: node-18, ubuntu-latest'
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -79,7 +79,7 @@ jobs:
     name: 'Audit: node-18, ubuntu-latest'
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
