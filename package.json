@@ -35,7 +35,7 @@
   ],
   "bugs": "https://github.com/Shinigami92/sturdy-adventure/issues",
   "dependencies": {
-    "three": "~0.145.0"
+    "three": "~0.169.0"
   },
   "devDependencies": {
     "@types/node": "~18.8.3",
